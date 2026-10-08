@@ -1,4 +1,5 @@
 import { MAX_ENTRY_LENGTH } from './journal.js';
+import { paginateEntries } from './pagination.js';
 
 const HOME_ENTRY_LIMIT = 3;
 
@@ -122,6 +123,11 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
   const saveEntryButton = root.querySelector('#save-entry');
   const recentEntriesList = root.querySelector('#recent-entries-list');
   const allEntriesList = root.querySelector('#all-entries-list');
+  const pagination = root.querySelector('#entries-pagination');
+  const paginationRange = root.querySelector('#pagination-range');
+  const paginationPage = root.querySelector('#pagination-page');
+  const paginationButtons = pagination.querySelectorAll('[data-page-action]');
+  const storageFeedback = root.querySelector('#storage-feedback');
   const appFeedback = root.querySelector('#app-feedback');
   const deleteDialog = root.querySelector('#delete-dialog');
   const cancelDeleteButton = root.querySelector('#cancel-delete');
@@ -130,15 +136,23 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
 
   let entries = [];
   let activeView = 'home';
+  let currentPage = 1;
   let editingEntryId = null;
+  let editingDraft = null;
   let pendingDeleteId = null;
   let deleteTrigger = null;
 
-  function announce(message) {
+  function announce(message, { tone = 'default' } = {}) {
     appFeedback.textContent = '';
+    appFeedback.dataset.tone = tone;
     requestAnimationFrame(() => {
       appFeedback.textContent = message;
     });
+  }
+
+  function showStorageError(message) {
+    storageFeedback.textContent = message;
+    storageFeedback.hidden = false;
   }
 
   function setComposerFeedback(message = '') {
@@ -202,7 +216,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
       textarea.className = 'entry-edit__textarea';
       textarea.dataset.entryEdit = entry.id;
       textarea.maxLength = MAX_ENTRY_LENGTH;
-      textarea.value = entry.content;
+      textarea.value = editingDraft ?? entry.content;
       textarea.setAttribute('aria-describedby', `${context}-edit-count-${entry.id} ${context}-edit-feedback-${entry.id}`);
 
       const editMeta = document.createElement('div');
@@ -217,7 +231,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
       count.id = `${context}-edit-count-${entry.id}`;
       count.dataset.editCount = entry.id;
       count.htmlFor = textarea.id;
-      count.textContent = formatCharacterCount(entry.content.length);
+      count.textContent = formatCharacterCount(textarea.value.length);
       editMeta.append(editFeedback, count);
 
       const editActions = document.createElement('div');
@@ -263,6 +277,20 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
     container.append(fragment);
   }
 
+  function renderPagination(page) {
+    currentPage = page.currentPage;
+    paginationPage.textContent = `Page ${page.currentPage} of ${page.totalPages}`;
+    paginationRange.textContent = page.totalEntries === 0
+      ? 'Showing 0 of 0 entries'
+      : `Showing ${page.rangeStart}–${page.rangeEnd} of ${page.totalEntries} ${page.totalEntries === 1 ? 'entry' : 'entries'}`;
+
+    paginationButtons.forEach((button) => {
+      const isBackward = button.dataset.pageAction === 'first'
+        || button.dataset.pageAction === 'previous';
+      button.disabled = isBackward ? !page.hasPreviousPage : !page.hasNextPage;
+    });
+  }
+
   function renderEntries(nextEntries) {
     entries = [...nextEntries];
     renderList(
@@ -271,12 +299,15 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
       'Your recent reflections will appear here.',
       'recent',
     );
+
+    const page = paginateEntries(entries, currentPage);
     renderList(
       allEntriesList,
-      entries,
+      page.visibleEntries,
       'Write your first entry from Home, then return here to see your journal history.',
       'all',
     );
+    renderPagination(page);
   }
 
   function focusEditingTextarea(id) {
@@ -290,6 +321,12 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
 
   function setActiveView(view, { moveFocus = true } = {}) {
     activeView = view;
+    if (view === 'all-entries') {
+      currentPage = 1;
+    }
+    if (view === 'all-entries' || editingEntryId !== null) {
+      renderEntries(entries);
+    }
     root.querySelector('#home-view').hidden = view !== 'home';
     root.querySelector('#all-entries-view').hidden = view !== 'all-entries';
 
@@ -337,7 +374,14 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
     if (!entry) return;
 
     if (action === 'edit') {
+      if (editingEntryId !== null && editingEntryId !== entryId) {
+        announce('Save or cancel your current edit before editing another entry.');
+        focusEditingTextarea(editingEntryId);
+        return;
+      }
+
       editingEntryId = entryId;
+      editingDraft = entry.content;
       renderEntries(entries);
       focusEditingTextarea(entryId);
       return;
@@ -345,6 +389,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
 
     if (action === 'cancel-edit') {
       editingEntryId = null;
+      editingDraft = null;
       renderEntries(entries);
       announce('Editing cancelled. No changes were saved.');
       requestAnimationFrame(() => {
@@ -368,6 +413,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
       }
 
       editingEntryId = null;
+      editingDraft = null;
       renderEntries(result.entries);
       announce('Entry updated.');
       requestAnimationFrame(() => {
@@ -387,6 +433,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
     const card = textarea.closest('.entry-card');
     const count = card.querySelector('[data-edit-count]');
     const feedback = card.querySelector('.entry-edit__feedback');
+    if (editingEntryId === textarea.dataset.entryEdit) editingDraft = textarea.value;
     count.textContent = formatCharacterCount(textarea.value.length);
     feedback.textContent = '';
     textarea.removeAttribute('aria-invalid');
@@ -409,7 +456,6 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
       return;
     }
 
-    editingEntryId = null;
     composer.value = '';
     setComposerFeedback();
     updateComposerCount();
@@ -421,6 +467,22 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
   [recentEntriesList, allEntriesList].forEach((list) => {
     list.addEventListener('click', handleEntryListClick);
     list.addEventListener('input', handleEntryListInput);
+  });
+
+  pagination.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-page-action]');
+    if (!button || button.disabled) return;
+
+    const page = paginateEntries(entries, currentPage);
+    const targetPages = {
+      first: 1,
+      previous: page.currentPage - 1,
+      next: page.currentPage + 1,
+      last: page.totalPages,
+    };
+
+    currentPage = targetPages[button.dataset.pageAction];
+    renderEntries(entries);
   });
 
   root.querySelectorAll('[data-view]').forEach((control) => {
@@ -456,14 +518,17 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
 
     const result = onDelete(pendingDeleteId);
     if (!result.ok) {
-      closeDeleteDialog();
-      announce(result.message);
+      closeDeleteDialog({ restoreFocus: true });
+      announce(result.message, { tone: 'error' });
       return;
     }
 
     const deletedId = pendingDeleteId;
     closeDeleteDialog();
-    if (editingEntryId === deletedId) editingEntryId = null;
+    if (editingEntryId === deletedId) {
+      editingEntryId = null;
+      editingDraft = null;
+    }
     renderEntries(result.entries);
     announce('Entry deleted.');
     requestAnimationFrame(() => {
@@ -472,5 +537,5 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
     });
   });
 
-  return { renderEntries };
+  return { renderEntries, showStorageError };
 }

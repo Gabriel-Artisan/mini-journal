@@ -53,7 +53,12 @@ Mini Journal should feel calm, personal, reflective, modern, elegant, and warm. 
 ## All Entries
 
 - Extend Home's typography, entry-card system, spacing, and visual language.
-- Show the complete journal history in reverse chronological order.
+- Provide access to the complete journal history in reverse chronological order, displaying 10 entries per page.
+- Place First, Previous, Next, and Last controls with the journal list. Show both a current-page indicator such as `Page 5 of 8` and a visible-range indicator such as `Showing 41–50 of 76 entries`.
+- Clearly distinguish enabled and disabled pagination controls without relying on color alone. Use semantic buttons, a labeled pagination region, logical keyboard order, and status text that remains understandable to assistive technology.
+- Opening All Entries starts on page 1. Keep the page and range indicators accurate after navigation or collection changes, and avoid leaving the user on an invalid page after deletion.
+- For an empty journal, retain the approved empty state and represent the page and range consistently without implying that entries exist. A partially filled final page should retain the normal card spacing and hierarchy.
+- On mobile, allow the controls and indicators to wrap or stack into a compact, readable arrangement with comfortable touch targets and no horizontal overflow. Preserve the same control order and meaning as desktop.
 - Do not add search, filtering, categories, tags, or sorting controls in Version 1.
 
 ## Settings

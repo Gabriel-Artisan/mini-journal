@@ -222,6 +222,22 @@ a {
   font-weight: 600;
 }
 
+.app-feedback[data-tone="error"] {
+  color: #a72e2e;
+}
+
+.storage-feedback {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(185, 59, 59, 0.3);
+  border-radius: 0.85rem;
+  color: #8f2d2d;
+  background: var(--danger-soft);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
 .home-layout {
   display: grid;
   grid-template-columns: minmax(320px, 0.82fr) minmax(460px, 1.18fr);
@@ -533,6 +549,55 @@ textarea[aria-invalid="true"] {
   gap: 1.25rem;
 }
 
+.pagination {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: rgba(255, 253, 249, 0.72);
+}
+
+.pagination__range,
+.pagination__page {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.pagination__controls {
+  display: grid;
+  grid-template-columns: auto auto minmax(8rem, 1fr) auto auto;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.pagination button {
+  min-height: 2.75rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(73, 116, 143, 0.3);
+  border-radius: 0.7rem;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.68);
+  cursor: pointer;
+  font-weight: 600;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.pagination button:not(:disabled):hover {
+  border-color: rgba(73, 116, 143, 0.55);
+  background: var(--blue-pale);
+}
+
+.pagination button:disabled {
+  color: #8996a1;
+  background: rgba(238, 237, 233, 0.75);
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
 .entry-card--editing {
   border-color: rgba(73, 116, 143, 0.42);
 }
@@ -812,6 +877,24 @@ textarea[aria-invalid="true"] {
 
   .entry-edit__actions > *,
   .confirmation-dialog__actions > * {
+    width: 100%;
+  }
+
+  .pagination {
+    padding: 0.9rem;
+  }
+
+  .pagination__controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pagination__page {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    padding-bottom: 0.15rem;
+  }
+
+  .pagination button {
     width: 100%;
   }
 

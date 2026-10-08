@@ -40,11 +40,14 @@ This is a starting point, not a requirement to create files or abstractions befo
 ## Persistence and data model
 
 - Use browser `localStorage` as the only persistent store.
-- Encapsulate all direct `localStorage` access in a dedicated storage module. UI code should use that module rather than reading or writing storage directly.
-- Store the journal entry collection as structured JSON.
-- Persist appearance and writing text-size preferences separately from journal entries so entry deletion does not unexpectedly reset preferences.
+- Encapsulate all direct `localStorage` access in a dedicated storage module. Journal domain and UI code must not read or write storage directly.
+- Store the complete journal entry collection as structured JSON under a dedicated journal storage key.
+- Treat a missing journal key as an empty collection. Parse and validate restored data before it enters application state, including the collection shape and every entry's `id`, `content`, and `createdAt` values.
+- Distinguish missing data from malformed, invalid, or unreadable data. Do not silently replace unreadable data with an empty collection, and block ordinary journal writes from overwriting it until the problem is deliberately resolved.
+- Handle unavailable storage, access exceptions, quota errors, serialization failures, and failed writes without crashing. Return actionable failure results to application coordination rather than falsely reporting success.
+- Coordinate storage and in-memory state so a failed create, edit, or delete does not appear committed. Preserve the user's unsaved creation or edit text for retry, and leave entries intact when deletion persistence fails.
+- Milestone 3 persists journal entries only. Appearance and writing text-size persistence remain approved Version 1 behavior but are deferred to the later Settings milestone and must use storage separate from the journal collection.
 - Version 1 has no backend, database, account system, or network persistence.
-- Validate parsed data before use. Recover safely from missing or malformed data, unavailable storage, quota errors, and failed writes without discarding unsaved user input.
 
 Each journal entry contains only:
 
@@ -57,7 +60,10 @@ Editing changes only the content and preserves the original creation timestamp. 
 ## Views and responsive behavior
 
 - Home contains the entry composer and a limited set of recent entries.
-- All Entries contains the complete history in reverse chronological order.
+- All Entries provides the complete history in reverse chronological order through client-side pages of 10 entries.
+- Pagination operates on the restored in-memory collection and never changes how the complete collection is stored. Do not introduce server-side pagination or network requests.
+- Opening All Entries resets it to page 1. Expose First, Previous, Next, and Last controls plus current-page and visible-range indicators derived from the current collection.
+- Disable boundary controls appropriately. Recalculate and clamp the current page after collection changes so empty collections, partially filled final pages, and deletions cannot leave an invalid page state.
 - Settings contains appearance, writing text-size, privacy and storage information, and delete-all controls.
 - Desktop navigation exposes Home, All Entries, and Settings directly. Mobile navigation provides the same destinations through a hamburger menu.
 - Preserve the responsive layouts and interaction hierarchy defined in `docs/design.md`, including the two-column desktop Home and single-column mobile flow.
@@ -73,9 +79,10 @@ Editing changes only the content and preserves the original creation timestamp. 
 
 ## Testing
 
-- Use Vitest for focused unit and integration tests covering journal logic, validation, storage parsing and failures, settings, and related application behavior.
+- Use Vitest for focused unit and integration tests covering journal logic, stored-data validation and restoration, missing and malformed data, read and write failures, pagination calculations and boundary changes, settings, and related application behavior.
 - Use Playwright for a small set of critical browser flows.
-- End-to-end coverage must include the essential create → edit → reload/persist → delete workflow. Add focused coverage for critical Version 1 acceptance behavior such as navigation, settings persistence, and confirmed bulk deletion where it provides meaningful confidence.
+- Milestone 3 end-to-end coverage must include create → reload, multiple-entry restoration, edit → reload, persistent deletion, storage-failure feedback with preserved writing, safe malformed-data handling, pagination navigation and indicators, and regression coverage for existing journal interactions.
+- Later Version 1 end-to-end coverage should add settings persistence and confirmed bulk deletion when those features are implemented.
 - Keep tests deterministic and proportional to the application. Avoid duplicating implementation details or building unnecessary test infrastructure.
 
 ## Security and data handling
@@ -104,6 +111,6 @@ Editing changes only the content and preserves the original creation timestamp. 
 
 Version 1 should remain a client-only application with a small dependency set and no framework, service layer, backend, or speculative abstraction. Modules should communicate through narrow functions and plain data. The product and design specifications take precedence over incidental details in the mockups.
 
-Key considerations are the limited durability and capacity of `localStorage`, malformed or unavailable stored data, preserving unsaved text when writes fail, safe handling of user content, consistent theme and preference behavior, irreversible deletion, responsive navigation and focus management, and GitHub Pages base-path handling. Address these directly without expanding Version 1 into backup, sync, account, or infrastructure work.
+Key considerations are the limited durability and capacity of `localStorage`, distinguishing missing data from unreadable data, preventing accidental overwrite after restoration failure, keeping in-memory state consistent with successful writes, preserving unsaved text when writes fail, maintaining valid pagination after collection changes, safe handling of user content, consistent theme and preference behavior, irreversible deletion, responsive navigation and focus management, and GitHub Pages base-path handling. Address these directly without expanding Version 1 into backup, sync, account, or infrastructure work.
 
 Favor the simplest maintainable architecture that fully satisfies the approved specifications. Add abstractions, dependencies, services, or infrastructure only when a clear Version 1 requirement justifies them.

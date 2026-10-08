@@ -69,6 +69,7 @@
       </header>
 
       <main class="app-main">
+        <div class="storage-feedback" id="storage-feedback" role="alert" hidden></div>
         <div class="app-feedback" id="app-feedback" role="status" aria-live="polite"></div>
 
         <section class="home-layout app-view" id="home-view" aria-labelledby="composer-heading">
@@ -134,6 +135,17 @@
           </header>
 
           <div class="entry-list entry-list--all" id="all-entries-list"></div>
+
+          <nav class="pagination" id="entries-pagination" aria-label="All Entries pagination">
+            <p class="pagination__range" id="pagination-range" aria-live="polite">Showing 0 of 0 entries</p>
+            <div class="pagination__controls">
+              <button type="button" data-page-action="first" aria-label="First page" aria-controls="all-entries-list">First</button>
+              <button type="button" data-page-action="previous" aria-label="Previous page" aria-controls="all-entries-list">Previous</button>
+              <p class="pagination__page" id="pagination-page" aria-live="polite" aria-atomic="true">Page 1 of 1</p>
+              <button type="button" data-page-action="next" aria-label="Next page" aria-controls="all-entries-list">Next</button>
+              <button type="button" data-page-action="last" aria-label="Last page" aria-controls="all-entries-list">Last</button>
+            </div>
+          </nav>
         </section>
       </main>
     </div>
