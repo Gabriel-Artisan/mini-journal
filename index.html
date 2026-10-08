@@ -36,7 +36,7 @@
       </svg>
 
       <header class="site-header" id="home">
-        <a class="brand" href="#home" aria-label="Mini Journal home">
+        <a class="brand" href="#home" data-view="home" aria-label="Mini Journal home">
           <svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true">
             <path d="M15 55C25 42 33 30 48 10" />
             <ellipse cx="22" cy="39" rx="8" ry="16" transform="rotate(-40 22 39)" />
@@ -62,128 +62,105 @@
         </button>
 
         <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation">
-          <a class="primary-nav__link is-active" href="#home" aria-current="page">Home</a>
-          <button class="primary-nav__link" type="button" aria-disabled="true">All Entries</button>
+          <button class="primary-nav__link is-active" type="button" data-view="home" aria-current="page">Home</button>
+          <button class="primary-nav__link" type="button" data-view="all-entries">All Entries</button>
           <button class="primary-nav__link" type="button" aria-disabled="true">Settings</button>
         </nav>
       </header>
 
-      <main class="home-layout">
-        <div class="home-layout__composer-column">
-          <section class="composer-card" aria-labelledby="composer-heading">
-            <div class="composer-card__heading-row">
-              <h1 id="composer-heading">
-                <svg class="heading-leaf" viewBox="0 0 32 32" aria-hidden="true">
-                  <path d="M5 28C12 20 17 13 27 4" />
-                  <ellipse cx="11" cy="20" rx="5" ry="9" transform="rotate(-42 11 20)" />
-                  <ellipse cx="20" cy="11" rx="5" ry="9" transform="rotate(40 20 11)" />
-                </svg>
-                Write a new entry
-              </h1>
-              <time class="composer-card__date" id="current-date"></time>
-            </div>
+      <main class="app-main">
+        <div class="app-feedback" id="app-feedback" role="status" aria-live="polite"></div>
 
-            <label class="composer-card__prompt" for="journal-entry">
-              How was your day? What’s on your mind?
-            </label>
+        <section class="home-layout app-view" id="home-view" aria-labelledby="composer-heading">
+          <div class="home-layout__composer-column">
+            <section class="composer-card" aria-labelledby="composer-heading">
+              <div class="composer-card__heading-row">
+                <h1 id="composer-heading" tabindex="-1">
+                  <svg class="heading-leaf" viewBox="0 0 32 32" aria-hidden="true">
+                    <path d="M5 28C12 20 17 13 27 4" />
+                    <ellipse cx="11" cy="20" rx="5" ry="9" transform="rotate(-42 11 20)" />
+                    <ellipse cx="20" cy="11" rx="5" ry="9" transform="rotate(40 20 11)" />
+                  </svg>
+                  Write a new entry
+                </h1>
+                <time class="composer-card__date" id="current-date"></time>
+              </div>
 
-            <div class="textarea-wrap">
-              <textarea
-                id="journal-entry"
-                name="journal-entry"
-                maxlength="1000"
-                placeholder="Write here..."
-                aria-describedby="character-count"
-              ></textarea>
-              <output id="character-count" for="journal-entry" aria-live="polite">0 / 1,000</output>
-            </div>
+              <label class="composer-card__prompt" for="journal-entry">
+                How was your day? What’s on your mind?
+              </label>
 
-            <div class="composer-card__actions">
-              <button class="save-button" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M5 20C9 14 13 9 20 4M8 15C4 13 4 9 5 6C9 7 12 9 12 12M13 10C13 6 16 3 20 2C21 6 19 10 15 12" />
-                </svg>
-                Save entry
-              </button>
-            </div>
-          </section>
+              <div class="textarea-wrap">
+                <textarea
+                  id="journal-entry"
+                  name="journal-entry"
+                  maxlength="1000"
+                  placeholder="Write here..."
+                  aria-describedby="character-count composer-feedback"
+                ></textarea>
+                <output id="character-count" for="journal-entry" aria-live="polite">0 / 1,000</output>
+              </div>
 
-          <blockquote class="journal-quote">
-            <span aria-hidden="true">“</span>
-            <p>Small notes<br />for a more meaningful tomorrow.</p>
-          </blockquote>
-        </div>
+              <p class="form-feedback" id="composer-feedback" role="alert"></p>
 
-        <section class="recent-entries" aria-labelledby="recent-entries-heading">
-          <h2 id="recent-entries-heading">Recent entries</h2>
+              <div class="composer-card__actions">
+                <button class="save-button" id="save-entry" type="button">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 20C9 14 13 9 20 4M8 15C4 13 4 9 5 6C9 7 12 9 12 12M13 10C13 6 16 3 20 2C21 6 19 10 15 12" />
+                  </svg>
+                  Save entry
+                </button>
+              </div>
+            </section>
 
-          <div class="entry-list">
-            <article class="entry-card">
-              <header class="entry-card__header">
-                <time datetime="2026-09-24T21:14:00">Sep 24, 2026 · 9:14 PM</time>
-                <div class="entry-card__actions" aria-label="Entry actions">
-                  <button type="button" aria-label="Edit sample entry from September 24, 2026">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Zm10-12 3 3M4 20h5" />
-                    </svg>
-                    Edit
-                  </button>
-                  <button class="entry-card__delete" type="button" aria-label="Delete sample entry from September 24, 2026">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6" />
-                    </svg>
-                    Delete
-                  </button>
-                </div>
-              </header>
-              <p>Today was a good day. I finally finished the project draft and feel more relaxed. Looking forward to a calm evening and a good book.</p>
-            </article>
-
-            <article class="entry-card">
-              <header class="entry-card__header">
-                <time datetime="2026-09-23T20:37:00">Sep 23, 2026 · 8:37 PM</time>
-                <div class="entry-card__actions" aria-label="Entry actions">
-                  <button type="button" aria-label="Edit sample entry from September 23, 2026">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Zm10-12 3 3M4 20h5" />
-                    </svg>
-                    Edit
-                  </button>
-                  <button class="entry-card__delete" type="button" aria-label="Delete sample entry from September 23, 2026">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6" />
-                    </svg>
-                    Delete
-                  </button>
-                </div>
-              </header>
-              <p>A bit of a challenging day, but I’m proud of how I handled it. I took a short walk and it really helped clear my mind.</p>
-            </article>
-
-            <article class="entry-card">
-              <header class="entry-card__header">
-                <time datetime="2026-09-22T19:12:00">Sep 22, 2026 · 7:12 PM</time>
-                <div class="entry-card__actions" aria-label="Entry actions">
-                  <button type="button" aria-label="Edit sample entry from September 22, 2026">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Zm10-12 3 3M4 20h5" />
-                    </svg>
-                    Edit
-                  </button>
-                  <button class="entry-card__delete" type="button" aria-label="Delete sample entry from September 22, 2026">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6" />
-                    </svg>
-                    Delete
-                  </button>
-                </div>
-              </header>
-              <p>Grateful for family time today. We cooked together and had a great conversation. These simple moments matter so much.</p>
-            </article>
+            <blockquote class="journal-quote">
+              <span aria-hidden="true">“</span>
+              <p>Small notes<br />for a more meaningful tomorrow.</p>
+            </blockquote>
           </div>
+
+          <section class="recent-entries" aria-labelledby="recent-entries-heading">
+            <h2 id="recent-entries-heading" tabindex="-1">Recent entries</h2>
+
+            <div class="entry-list" id="recent-entries-list"></div>
+          </section>
+        </section>
+
+        <section class="all-entries-view app-view" id="all-entries-view" aria-labelledby="all-entries-heading" hidden>
+          <header class="view-heading">
+            <p class="view-heading__eyebrow">Journal history</p>
+            <h1 id="all-entries-heading" tabindex="-1">All Entries</h1>
+            <p>Your complete journal history, newest first.</p>
+          </header>
+
+          <div class="entry-list entry-list--all" id="all-entries-list"></div>
         </section>
       </main>
     </div>
+
+    <dialog class="confirmation-dialog" id="delete-dialog" aria-labelledby="delete-dialog-title" aria-describedby="delete-dialog-description">
+      <div class="confirmation-dialog__content">
+        <p class="confirmation-dialog__eyebrow">Delete entry</p>
+        <h2 id="delete-dialog-title">Remove this journal entry?</h2>
+        <p id="delete-dialog-description">This entry will be removed from your journal. This action cannot be undone.</p>
+        <div class="confirmation-dialog__actions">
+          <button class="secondary-button" id="cancel-delete" type="button">Cancel</button>
+          <button class="danger-button" id="confirm-delete" type="button">Delete entry</button>
+        </div>
+      </div>
+    </dialog>
+
+    <template id="edit-icon-template">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Zm10-12 3 3M4 20h5" />
+      </svg>
+    </template>
+
+    <template id="delete-icon-template">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6" />
+      </svg>
+    </template>
 
     <script type="module" src="/src/app.js"></script>
   </body>

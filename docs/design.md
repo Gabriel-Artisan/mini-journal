@@ -40,6 +40,7 @@ Mini Journal should feel calm, personal, reflective, modern, elegant, and warm. 
 - Entries are text-only. Do not include image thumbnails, uploads, attachments, or decorative images inside entry cards.
 - Present journal text as the primary content. Date and time metadata should be visibly secondary.
 - Keep Edit and Delete clearly discoverable and accessible while visually quieter than the entry text.
+- Edit entries inline within their existing card. Replace the journal text with a labeled textarea and show Save and Cancel controls; move focus into the textarea when editing begins, preserve the original content on Cancel, and keep validation feedback associated with the field.
 - Use the same paper-like card treatment and spacing rhythm across recent entries and the complete history.
 
 ## Home

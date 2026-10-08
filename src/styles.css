@@ -22,6 +22,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html {
   min-width: 320px;
   scroll-behavior: smooth;
@@ -70,7 +74,7 @@ a {
 }
 
 .site-header,
-.home-layout {
+.app-main {
   width: min(100%, 1400px);
   margin-inline: auto;
 }
@@ -205,9 +209,20 @@ a {
   transform: translateY(-6px) rotate(-45deg);
 }
 
-.home-layout {
+.app-main {
   position: relative;
   z-index: 2;
+}
+
+.app-feedback {
+  min-height: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--blue-deep);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.home-layout {
   display: grid;
   grid-template-columns: minmax(320px, 0.82fr) minmax(460px, 1.18fr);
   gap: clamp(2.5rem, 5vw, 5rem);
@@ -304,6 +319,10 @@ textarea:focus-visible {
   box-shadow: 0 0 0 1px rgba(22, 121, 178, 0.15);
 }
 
+textarea[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
 #character-count {
   position: absolute;
   right: 1rem;
@@ -316,6 +335,15 @@ textarea:focus-visible {
   display: flex;
   justify-content: flex-end;
   margin-top: 1.15rem;
+}
+
+.form-feedback {
+  min-height: 1.35rem;
+  margin: 0.55rem 0 0;
+  color: #a72e2e;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .save-button {
@@ -428,20 +456,199 @@ textarea:focus-visible {
   background: var(--blue-pale);
 }
 
-.entry-card__actions .entry-card__delete {
+.entry-card__actions .entry-card__action--delete {
   color: var(--danger);
 }
 
-.entry-card__actions .entry-card__delete:hover {
+.entry-card__actions .entry-card__action--delete:hover {
   color: #a72e2e;
   background: var(--danger-soft);
 }
 
-.entry-card p {
+.entry-card__content {
   margin: 0.8rem 0 0;
   font-family: var(--serif);
   font-size: clamp(1.08rem, 1.5vw, 1.3rem);
   line-height: 1.55;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.empty-state {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px dashed rgba(73, 116, 143, 0.35);
+  border-radius: 1.15rem;
+  background: rgba(255, 253, 249, 0.54);
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.empty-state p {
+  max-width: 34rem;
+  margin: 0.5rem auto 0;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.all-entries-view {
+  width: min(100%, 56rem);
+  margin-inline: auto;
+}
+
+.view-heading {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.view-heading__eyebrow,
+.confirmation-dialog__eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--blue-deep);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.view-heading h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.view-heading > p:last-child {
+  margin: 0.55rem 0 0;
+  color: var(--ink-soft);
+}
+
+.entry-list--all {
+  gap: 1.25rem;
+}
+
+.entry-card--editing {
+  border-color: rgba(73, 116, 143, 0.42);
+}
+
+.entry-edit {
+  margin-top: 0.9rem;
+}
+
+.entry-edit__textarea {
+  min-height: 9rem;
+  padding-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.entry-edit__meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.entry-edit__meta output {
+  flex: 0 0 auto;
+  padding-top: 0.55rem;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.entry-edit__feedback {
+  margin-top: 0.45rem;
+}
+
+.entry-edit__actions,
+.confirmation-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.save-button--compact,
+.secondary-button,
+.danger-button {
+  min-height: 2.85rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 0.75rem;
+  font-size: 0.98rem;
+}
+
+.secondary-button,
+.danger-button {
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.secondary-button:hover {
+  border-color: rgba(73, 116, 143, 0.45);
+  background: var(--blue-pale);
+}
+
+.danger-button {
+  border-color: transparent;
+  color: white;
+  background: #b93b3b;
+}
+
+.danger-button:hover {
+  background: #9d2e2e;
+}
+
+.confirmation-dialog {
+  width: min(calc(100% - 2rem), 30rem);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 1.2rem;
+  color: var(--ink);
+  background: #fffdf9;
+  box-shadow: 0 24px 70px rgba(24, 51, 84, 0.2);
+}
+
+.confirmation-dialog::backdrop {
+  background: rgba(19, 37, 55, 0.38);
+  backdrop-filter: blur(3px);
+}
+
+.confirmation-dialog__content {
+  padding: clamp(1.4rem, 5vw, 2rem);
+}
+
+.confirmation-dialog h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.7rem;
+  font-weight: 500;
+}
+
+.confirmation-dialog #delete-dialog-description {
+  margin: 0.75rem 0 0;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .botanical {
@@ -594,8 +801,18 @@ textarea:focus-visible {
     margin-top: -2.5rem;
   }
 
-  .entry-card p {
+  .entry-card__content {
     margin-top: 1rem;
+  }
+
+  .entry-edit__actions,
+  .confirmation-dialog__actions {
+    flex-direction: column-reverse;
+  }
+
+  .entry-edit__actions > *,
+  .confirmation-dialog__actions > * {
+    width: 100%;
   }
 
   .botanical--top {
