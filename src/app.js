@@ -9,6 +9,9 @@ import {
 } from './journal.js';
 import { createJournalStorage, JournalStorageError } from './storage.js';
 import { initJournalUi } from './ui.js';
+import { initPreferences } from './preferences.js';
+
+initPreferences();
 
 let entries = [];
 let startupStorageError = '';
@@ -62,6 +65,12 @@ const ui = initJournalUi({
     return runJournalAction(
       () => deleteEntry(entries, id),
       'We couldn’t delete this entry because the change could not be saved. The entry is still in your journal. Resolve the storage issue and try again.',
+    );
+  },
+  onDeleteAll() {
+    return runJournalAction(
+      () => [],
+      'We couldn’t delete your entries because the change could not be saved. Your journal was left unchanged. Resolve the storage issue and try again.',
     );
   },
 });

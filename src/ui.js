@@ -2,6 +2,12 @@ import { MAX_ENTRY_LENGTH } from './journal.js';
 import { paginateEntries } from './pagination.js';
 
 const HOME_ENTRY_LIMIT = 3;
+const SUCCESS_FEEDBACK_DURATION = 3500;
+const VIEW_HASHES = new Map([
+  ['home', '#home'],
+  ['all-entries', '#entries'],
+  ['settings', '#settings'],
+]);
 
 function formatCharacterCount(count) {
   return `${count.toLocaleString('en-US')} / ${MAX_ENTRY_LENGTH.toLocaleString('en-US')}`;
@@ -116,7 +122,7 @@ function createEmptyState(message) {
   return emptyState;
 }
 
-export function initJournalUi({ root = document, onCreate, onUpdate, onDelete }) {
+export function initJournalUi({ root = document, onCreate, onUpdate, onDelete, onDeleteAll }) {
   const composer = root.querySelector('#journal-entry');
   const composerCount = root.querySelector('#character-count');
   const composerFeedback = root.querySelector('#composer-feedback');
@@ -132,6 +138,8 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
   const deleteDialog = root.querySelector('#delete-dialog');
   const cancelDeleteButton = root.querySelector('#cancel-delete');
   const confirmDeleteButton = root.querySelector('#confirm-delete');
+  const deleteAllButton = root.querySelector('#delete-all');
+  const deleteAllHint = root.querySelector('#delete-all-hint');
   const navigation = initMobileNavigation(root);
 
   let entries = [];
@@ -140,19 +148,38 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
   let editingEntryId = null;
   let editingDraft = null;
   let pendingDeleteId = null;
+  let pendingDeleteAll = false;
   let deleteTrigger = null;
+  let storageBlocked = false;
+  let feedbackFrame = null;
+  let feedbackTimer = null;
+
+  function clearAnnouncement() {
+    cancelAnimationFrame(feedbackFrame);
+    clearTimeout(feedbackTimer);
+    feedbackFrame = null;
+    feedbackTimer = null;
+    appFeedback.textContent = '';
+  }
 
   function announce(message, { tone = 'default' } = {}) {
-    appFeedback.textContent = '';
+    clearAnnouncement();
     appFeedback.dataset.tone = tone;
-    requestAnimationFrame(() => {
+    feedbackFrame = requestAnimationFrame(() => {
+      feedbackFrame = null;
       appFeedback.textContent = message;
+      if (tone === 'success') {
+        feedbackTimer = setTimeout(clearAnnouncement, SUCCESS_FEEDBACK_DURATION);
+      }
     });
   }
 
   function showStorageError(message) {
+    storageBlocked = true;
     storageFeedback.textContent = message;
     storageFeedback.hidden = false;
+    deleteAllButton.disabled = true;
+    deleteAllHint.textContent = 'Deletion is unavailable while saved journal data cannot be read. Resolve the browser storage issue and reload.';
   }
 
   function setComposerFeedback(message = '') {
@@ -293,6 +320,8 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
 
   function renderEntries(nextEntries) {
     entries = [...nextEntries];
+    deleteAllButton.disabled = storageBlocked || entries.length === 0;
+    if (!storageBlocked) deleteAllHint.textContent = entries.length === 0 ? 'There are no saved entries to delete.' : '';
     renderList(
       recentEntriesList,
       entries.slice(0, HOME_ENTRY_LIMIT),
@@ -320,6 +349,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
   }
 
   function setActiveView(view, { moveFocus = true } = {}) {
+    if (view !== activeView && appFeedback.dataset.tone === 'success') clearAnnouncement();
     activeView = view;
     if (view === 'all-entries') {
       currentPage = 1;
@@ -329,6 +359,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
     }
     root.querySelector('#home-view').hidden = view !== 'home';
     root.querySelector('#all-entries-view').hidden = view !== 'all-entries';
+    root.querySelector('#settings-view').hidden = view !== 'settings';
 
     root.querySelectorAll('.primary-nav [data-view]').forEach((link) => {
       const isActive = link.dataset.view === view;
@@ -342,27 +373,47 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
 
     navigation.closeMenu();
     if (moveFocus) {
-      const heading = root.querySelector(view === 'home' ? '#composer-heading' : '#all-entries-heading');
+      const heading = root.querySelector(view === 'home' ? '#composer-heading' : `#${view}-heading`);
       heading?.focus();
     }
+  }
+
+  function syncViewFromUrl(options) {
+    const view = [...VIEW_HASHES].find(([, hash]) => hash === window.location.hash)?.[0] ?? 'home';
+    const hash = VIEW_HASHES.get(view);
+    if (window.location.hash !== hash) {
+      window.history.replaceState(window.history.state, '', hash);
+    }
+    setActiveView(view, options);
   }
 
   function closeDeleteDialog({ restoreFocus = false } = {}) {
     if (deleteDialog.open) deleteDialog.close();
     pendingDeleteId = null;
+    pendingDeleteAll = false;
     if (restoreFocus && deleteTrigger?.isConnected) deleteTrigger.focus();
     deleteTrigger = null;
   }
 
-  function openDeleteDialog(id, trigger) {
+  function openDeleteDialog(id, trigger, all = false) {
+    if (deleteDialog.open) return;
     pendingDeleteId = id;
+    pendingDeleteAll = all;
     deleteTrigger = trigger;
+    root.querySelector('.confirmation-dialog__eyebrow').textContent = all ? 'Delete all entries' : 'Delete entry';
+    root.querySelector('#delete-dialog-title').textContent = all ? 'Delete all journal entries?' : 'Remove this journal entry?';
+    root.querySelector('#delete-dialog-description').textContent = all
+      ? 'All saved journal entries will be permanently deleted. This action cannot be undone. Your appearance and text-size preferences will be kept.'
+      : 'This entry will be removed from your journal. This action cannot be undone.';
+    confirmDeleteButton.textContent = all ? 'Delete all entries' : 'Delete entry';
     deleteDialog.showModal();
+    cancelDeleteButton.focus();
   }
 
   function cancelDeletion() {
+    const all = pendingDeleteAll;
     closeDeleteDialog({ restoreFocus: true });
-    announce('Deletion cancelled. The entry was not changed.');
+    announce(all ? 'Deletion cancelled. Your entries were not changed.' : 'Deletion cancelled. The entry was not changed.');
   }
 
   function handleEntryListClick(event) {
@@ -415,7 +466,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
       editingEntryId = null;
       editingDraft = null;
       renderEntries(result.entries);
-      announce('Entry updated.');
+      announce('Entry updated.', { tone: 'success' });
       requestAnimationFrame(() => {
         const activeViewElement = root.querySelector(`#${activeView}-view`);
         activeViewElement?.querySelector(`[data-action="edit"][data-entry-id="${CSS.escape(entryId)}"]`)?.focus();
@@ -441,7 +492,8 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
 
   setCurrentDate(root);
   updateComposerCount();
-  setActiveView('home', { moveFocus: false });
+  syncViewFromUrl({ moveFocus: false });
+  window.addEventListener('hashchange', () => syncViewFromUrl());
 
   composer.addEventListener('input', () => {
     updateComposerCount();
@@ -460,7 +512,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
     setComposerFeedback();
     updateComposerCount();
     renderEntries(result.entries);
-    announce('Entry saved.');
+    announce('Entry saved.', { tone: 'success' });
     composer.focus();
   });
 
@@ -488,12 +540,31 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
   root.querySelectorAll('[data-view]').forEach((control) => {
     control.addEventListener('click', (event) => {
       event.preventDefault();
-      setActiveView(control.dataset.view);
+      const hash = VIEW_HASHES.get(control.dataset.view);
+      if (window.location.hash !== hash) {
+        window.history.pushState(null, '', hash);
+      }
+      syncViewFromUrl();
     });
   });
 
   cancelDeleteButton.addEventListener('click', () => {
     cancelDeletion();
+  });
+
+  deleteAllButton.addEventListener('click', () => {
+    if (!deleteAllButton.disabled && entries.length) openDeleteDialog(null, deleteAllButton, true);
+  });
+
+  deleteDialog.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') return;
+    if (event.shiftKey && root.activeElement === cancelDeleteButton) {
+      event.preventDefault();
+      confirmDeleteButton.focus();
+    } else if (!event.shiftKey && root.activeElement === confirmDeleteButton) {
+      event.preventDefault();
+      cancelDeleteButton.focus();
+    }
   });
 
   deleteDialog.addEventListener('cancel', (event) => {
@@ -514,9 +585,10 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
   });
 
   confirmDeleteButton.addEventListener('click', () => {
-    if (!pendingDeleteId) return;
+    if (!pendingDeleteId && !pendingDeleteAll) return;
 
-    const result = onDelete(pendingDeleteId);
+    const all = pendingDeleteAll;
+    const result = all ? onDeleteAll() : onDelete(pendingDeleteId);
     if (!result.ok) {
       closeDeleteDialog({ restoreFocus: true });
       announce(result.message, { tone: 'error' });
@@ -525,14 +597,14 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete })
 
     const deletedId = pendingDeleteId;
     closeDeleteDialog();
-    if (editingEntryId === deletedId) {
+    if (all || editingEntryId === deletedId) {
       editingEntryId = null;
       editingDraft = null;
     }
     renderEntries(result.entries);
-    announce('Entry deleted.');
+    announce(all ? 'All journal entries deleted.' : 'Entry deleted.', { tone: 'success' });
     requestAnimationFrame(() => {
-      const heading = root.querySelector(activeView === 'home' ? '#recent-entries-heading' : '#all-entries-heading');
+      const heading = root.querySelector(all ? '#settings-heading' : activeView === 'home' ? '#recent-entries-heading' : '#all-entries-heading');
       heading?.focus();
     });
   });

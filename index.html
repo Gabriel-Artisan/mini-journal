@@ -8,6 +8,7 @@
       content="Mini Journal is a calm, private place for short daily reflections."
     />
     <title>Mini Journal</title>
+    <script type="module" src="/src/app.js"></script>
   </head>
   <body>
     <div class="page-shell">
@@ -64,7 +65,7 @@
         <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation">
           <button class="primary-nav__link is-active" type="button" data-view="home" aria-current="page">Home</button>
           <button class="primary-nav__link" type="button" data-view="all-entries">All Entries</button>
-          <button class="primary-nav__link" type="button" aria-disabled="true">Settings</button>
+          <button class="primary-nav__link" type="button" data-view="settings">Settings</button>
         </nav>
       </header>
 
@@ -147,6 +148,59 @@
             </div>
           </nav>
         </section>
+        <section class="settings-view app-view" id="settings-view" aria-labelledby="settings-heading" hidden>
+          <header class="view-heading">
+            <h1 id="settings-heading" tabindex="-1">Settings</h1>
+            <p>Customize your journaling experience.</p>
+          </header>
+          <p class="form-feedback" id="preferences-feedback" role="alert"></p>
+          <button class="secondary-button" type="button" id="retry-preferences" hidden>Retry saving preferences</button>
+          <div class="settings-cards">
+            <section class="settings-card" aria-labelledby="appearance-heading">
+              <div class="settings-card__description">
+                <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></svg>
+                <div><h2 id="appearance-heading">Appearance</h2><p id="appearance-description">Choose Light or Dark, or let System follow your device's appearance.</p></div>
+              </div>
+              <fieldset class="segmented segmented--appearance" aria-describedby="appearance-description">
+                <legend class="sr-only">Appearance</legend>
+                <label><input type="radio" name="appearance" value="light" data-preference="appearance"/><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></svg>Light</span></label>
+                <label><input type="radio" name="appearance" value="dark" data-preference="appearance"/><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15A9 9 0 0 1 9 3a9 9 0 1 0 11 12Z"/></svg>Dark</span></label>
+                <label><input type="radio" name="appearance" value="system" data-preference="appearance"/><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M12 17v4m-5 0h10"/></svg>System</span></label>
+              </fieldset>
+            </section>
+            <section class="settings-card" aria-labelledby="text-size-heading">
+              <div class="settings-card__description">
+                <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6V3h14v3M9 3v18m-4 0h8m1-10V9h8v2m-4-2v12m-3 0h6"/></svg>
+                <div><h2 id="text-size-heading">Text size</h2><p id="text-size-description">Choose a comfortable size for writing and reading entries.</p></div>
+              </div>
+              <fieldset class="segmented" aria-describedby="text-size-description">
+                <legend class="sr-only">Writing text size</legend>
+                <label><input type="radio" name="text-size" value="small" data-preference="textSize"/><span>Small</span></label>
+                <label><input type="radio" name="text-size" value="medium" data-preference="textSize"/><span>Medium</span></label>
+                <label><input type="radio" name="text-size" value="large" data-preference="textSize"/><span>Large</span></label>
+              </fieldset>
+            </section>
+            <section class="settings-card settings-card--privacy" aria-labelledby="privacy-heading">
+              <div class="settings-card__description">
+                <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="12" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3m-5 5v3"/></svg>
+                <div><h2 id="privacy-heading">Privacy &amp; storage</h2><p>Your journal entries are stored only in this browser on this device. They are not sent to an application server, account, or cloud service.</p></div>
+              </div>
+              <p class="storage-callout"><span aria-hidden="true">ⓘ</span><span>Clearing browser or site data may permanently remove your entries. They won’t appear in another browser or on another device. Browser storage is not a cloud backup.</span></p>
+            </section>
+            <section class="settings-card" aria-labelledby="data-heading">
+              <div class="settings-card__description">
+                <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="4"/><path d="M3 5v14c0 5 18 5 18 0V5M3 12c0 5 18 5 18 0"/></svg>
+                <div><h2 id="data-heading">Data</h2><p>This will permanently delete all your saved journal entries. This action cannot be undone.</p><p id="delete-all-hint">There are no saved entries to delete.</p></div>
+              </div>
+              <button type="button" class="delete-all-button" id="delete-all" aria-describedby="delete-all-hint" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6" />
+                </svg>
+                <span>Delete all journal entries</span>
+              </button>
+            </section>
+          </div>
+        </section>
       </main>
     </div>
 
@@ -174,6 +228,5 @@
       </svg>
     </template>
 
-    <script type="module" src="/src/app.js"></script>
   </body>
 </html>

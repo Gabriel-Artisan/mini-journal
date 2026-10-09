@@ -67,7 +67,9 @@ Editing changes only the content and preserves the original creation timestamp. 
 - Settings contains appearance, writing text-size, privacy and storage information, and delete-all controls.
 - Desktop navigation exposes Home, All Entries, and Settings directly. Mobile navigation provides the same destinations through a hamburger menu.
 - Preserve the responsive layouts and interaction hierarchy defined in `docs/design.md`, including the two-column desktop Home and single-column mobile flow.
-- Implement view navigation without adding a routing dependency unless a demonstrated need emerges.
+- Use lightweight hash navigation: Home is `#home`, All Entries is `#entries`, and Settings is `#settings`. Read the hash on startup, direct navigation, reload, and browser Back/Forward; route every transition through the existing view-management logic.
+- Navigation clicks add a history entry only for a different destination. Replace missing or unsupported hashes with canonical `#home` without adding an extra history entry. History navigation applies the same focus, mobile-menu closing, success-feedback dismissal, and All Entries page-one behavior as navigation clicks.
+- Change only the URL fragment, preserving the current path and query. This supports static GitHub Pages project paths without server routes or a routing dependency. Asset base-path configuration remains deferred to deployment.
 
 ## Settings and destructive actions
 
@@ -76,6 +78,13 @@ Editing changes only the content and preserves the original creation timestamp. 
 - System appearance follows the browser or operating-system preference and responds appropriately when that preference changes.
 - Delete all journal entries removes only journal data. It must not reset appearance, writing text size, or other unrelated preferences.
 - Individual deletion and delete-all require the confirmations defined by the product specification; delete-all must clearly communicate that it is irreversible.
+
+Milestone 4 implementation:
+
+- `storage.js` stores `{ appearance, textSize }` under `mini-journal.preferences.v1`, separately from the unchanged `mini-journal.entries.v1` collection. Preference fields are validated independently; missing or malformed values fall back without an automatic write. Read/write failures return explicit results.
+- `preferences.js` restores preferences at application startup, before loading/rendering journal data. It applies the resolved `data-theme` and selected `data-text-size` to the document, synchronizes native radio controls, and responds to system appearance changes. The stored System choice remains distinct from the resolved theme.
+- Shared CSS tokens cover Light/Dark surfaces and writing/reading sizes. Text-size tokens affect journal textareas and entry content only.
+- Bulk deletion uses the existing guarded `saveEntries([])` operation, followed by a state/render update only on success. It never clears storage indiscriminately or bypasses the Milestone 3 read-failure lock. The shared native modal starts on Cancel, traps Tab navigation, supports Escape/backdrop cancellation, and restores appropriate focus.
 
 ## Testing
 

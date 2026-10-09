@@ -100,6 +100,14 @@ Approved behavior:
 10. **AC-10:** Relevant Vitest and Playwright tests pass, including persistence, failure handling, pagination, and regression coverage.
 11. **AC-11:** Pagination provides First, Previous, Next, and Last navigation, current-page and entry-range indicators, appropriate disabled states, and correct handling of empty or changing collections.
 
+## Milestone 4 — Settings
+
+The Settings implementation adds persistent appearance and writing text-size preferences, local-storage information, and confirmed bulk deletion. Missing or invalid preference values fall back independently to System appearance and Medium text size. Failed preference writes apply the choices for the current session, explain that they were not saved, and allow retry.
+
+Delete-all preserves preferences and unsaved composer text, invalidates edits to deleted entries, and commits the empty collection only after storage succeeds. It is unavailable for an empty journal or when the existing unreadable-data safeguard blocks journal changes; it does not introduce a recovery mechanism.
+
+See [the Milestone 4 review record](milestones/04-settings.md) for implementation decisions, acceptance criteria, and verification.
+
 ## Definition of done for Version 1
 
 Version 1 is done when:

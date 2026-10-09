@@ -183,6 +183,8 @@ test('preserves a failed edit draft through pagination and supports retry and ca
   await expect(page.locator('#app-feedback')).toHaveText('Entry updated.');
 
   await page.reload();
+  await expect(page.locator('#all-entries-view')).toBeVisible();
+  await page.getByRole('button', { name: 'Home', exact: true }).click();
   const reloadedCard = page.locator(
     `#recent-entries-list .entry-card[data-entry-id="${targetEntry.id}"]`,
   );

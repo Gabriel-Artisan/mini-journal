@@ -1,6 +1,45 @@
 import { MAX_ENTRY_LENGTH } from './journal.js';
 
 export const JOURNAL_STORAGE_KEY = 'mini-journal.entries.v1';
+export const PREFERENCES_STORAGE_KEY = 'mini-journal.preferences.v1';
+export const DEFAULT_PREFERENCES = Object.freeze({ appearance: 'system', textSize: 'medium' });
+
+export function normalizePreferences(value) {
+  return {
+    appearance: ['light', 'dark', 'system'].includes(value?.appearance)
+      ? value.appearance : DEFAULT_PREFERENCES.appearance,
+    textSize: ['small', 'medium', 'large'].includes(value?.textSize)
+      ? value.textSize : DEFAULT_PREFERENCES.textSize,
+  };
+}
+
+export function createPreferenceStorage({ storageProvider = () => window.localStorage } = {}) {
+  return {
+    loadPreferences() {
+      try {
+        const raw = storageProvider().getItem(PREFERENCES_STORAGE_KEY);
+        let value;
+        try {
+          value = JSON.parse(raw);
+        } catch {
+          // Preferences can safely fall back; journal data has stricter safeguards below.
+          value = null;
+        }
+        return { preferences: normalizePreferences(value), ok: true };
+      } catch {
+        return { preferences: { ...DEFAULT_PREFERENCES }, ok: false };
+      }
+    },
+    savePreferences(preferences) {
+      try {
+        storageProvider().setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(normalizePreferences(preferences)));
+        return { ok: true };
+      } catch {
+        return { ok: false };
+      }
+    },
+  };
+}
 
 const STORAGE_ERROR_MESSAGES = {
   blocked: 'Journal storage is blocked to protect unreadable saved data.',
