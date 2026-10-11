@@ -16,7 +16,7 @@ async function expectView(page, view) {
 }
 
 test('navigation clicks and Back/Forward keep the URL, view and selected navigation together', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await expectView(page, views[0]);
   for (const view of [views[1], views[2], views[0]]) {
     await page.getByRole('button', { name: view.name, exact: true }).click();
@@ -34,7 +34,7 @@ test('navigation clicks and Back/Forward keep the URL, view and selected navigat
 
 for (const view of views) {
   test(`direct ${view.hash} navigation and reload preserve the requested view`, async ({ page }) => {
-    await page.goto(`/${view.hash}`);
+    await page.goto(`./${view.hash}`);
     await expectView(page, view);
     await page.reload();
     await expectView(page, view);
@@ -43,8 +43,8 @@ for (const view of views) {
 
 test('missing and unsupported hashes replace the current URL with canonical Home', async ({ page }) => {
   for (const hash of ['', '#unknown', '#constructor']) {
-    await page.goto('/?previous=1#settings');
-    await page.goto(`/?review=1${hash}`);
+    await page.goto('./?previous=1#settings');
+    await page.goto(`./?review=1${hash}`);
     await expectView(page, views[0]);
     expect(new URL(page.url()).search).toBe('?review=1');
     await page.goBack();
@@ -58,7 +58,7 @@ test('missing and unsupported hashes replace the current URL with canonical Home
 });
 
 test('selecting the active view repeatedly does not add history entries', async ({ page }) => {
-  await page.goto('/#home');
+  await page.goto('./#home');
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   const length = await page.evaluate(() => history.length);
   for (let i = 0; i < 3; i++) {
@@ -80,7 +80,7 @@ test('hash changes preserve a static-hosting project path and query', async ({ p
 
 test('mobile navigation updates hashes and history closes the menu', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/#home');
+  await page.goto('./#home');
   for (const view of [views[1], views[2]]) {
     await page.getByRole('button', { name: 'Open navigation menu' }).click();
     await page.getByRole('button', { name: view.name, exact: true }).click();
@@ -99,11 +99,12 @@ test('mobile navigation updates hashes and history closes the menu', async ({ pa
 
 test('browser history clears success feedback while preserving composer writing', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-09T12:00:00Z') });
-  await page.goto('/#settings');
+  await page.goto('./#settings');
   await page.clock.pauseAt(new Date('2026-10-09T12:01:00Z'));
   await page.getByRole('button', { name: 'Home', exact: true }).click();
   await page.locator('#journal-entry').fill('Saved through Home');
   await page.getByRole('button', { name: 'Save entry', exact: true }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await page.clock.runFor(20);
   await expect(page.locator('#app-feedback')).toHaveText('Entry saved.');
   await page.locator('#journal-entry').fill('Keep this draft');
@@ -123,7 +124,7 @@ test('history reopening All Entries resets pagination and preserves an edit draf
       id: `entry-${i}`, content: `Reflection ${i}`, createdAt: new Date(Date.UTC(2026, 9, 9, 12, i)).toISOString(),
     }))));
   }, JOURNAL_STORAGE_KEY);
-  await page.goto('/#entries');
+  await page.goto('./#entries');
   await page.locator('#all-entries-list .entry-card').first().getByRole('button', { name: 'Edit', exact: true }).click();
   await page.getByRole('textbox', { name: 'Edit journal entry' }).fill('Keep this edit draft');
   await page.getByRole('button', { name: 'Last page' }).click();

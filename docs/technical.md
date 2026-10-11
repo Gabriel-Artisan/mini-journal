@@ -46,7 +46,9 @@ This is a starting point, not a requirement to create files or abstractions befo
 - Distinguish missing data from malformed, invalid, or unreadable data. Do not silently replace unreadable data with an empty collection, and block ordinary journal writes from overwriting it until the problem is deliberately resolved.
 - Handle unavailable storage, access exceptions, quota errors, serialization failures, and failed writes without crashing. Return actionable failure results to application coordination rather than falsely reporting success.
 - Coordinate storage and in-memory state so a failed create, edit, or delete does not appear committed. Preserve the user's unsaved creation or edit text for retry, and leave entries intact when deletion persistence fails.
-- Milestone 3 persists journal entries only. Appearance and writing text-size persistence remain approved Version 1 behavior but are deferred to the later Settings milestone and must use storage separate from the journal collection.
+- Journal `saveEntries` is asynchronous. Retain the exact raw snapshot from each successful load/save; capture the expected snapshot before waiting, then compare and write within an exclusive Web Lock named for the journal key. Update the snapshot and application state only after persistence succeeds. All journal mutations use this path. No new persisted fields or metadata are introduced.
+- Reject stale snapshots with understandable conflict feedback and keep drafts. Require a successful load before saving. If Web Locks is unavailable, refuse journal writes while leaving reading and Settings usable; do not use a check-then-write fallback outside a lock. Locks coordinate cooperating application tabs in the same browser profile/origin, including offline operation.
+- Milestone 3 introduced journal persistence; Milestone 4 added appearance and writing text-size persistence in storage separate from the journal collection.
 - Version 1 has no backend, database, account system, or network persistence.
 
 Each journal entry contains only:
@@ -69,7 +71,7 @@ Editing changes only the content and preserves the original creation timestamp. 
 - Preserve the responsive layouts and interaction hierarchy defined in `docs/design.md`, including the two-column desktop Home and single-column mobile flow.
 - Use lightweight hash navigation: Home is `#home`, All Entries is `#entries`, and Settings is `#settings`. Read the hash on startup, direct navigation, reload, and browser Back/Forward; route every transition through the existing view-management logic.
 - Navigation clicks add a history entry only for a different destination. Replace missing or unsupported hashes with canonical `#home` without adding an extra history entry. History navigation applies the same focus, mobile-menu closing, success-feedback dismissal, and All Entries page-one behavior as navigation clicks.
-- Change only the URL fragment, preserving the current path and query. This supports static GitHub Pages project paths without server routes or a routing dependency. Asset base-path configuration remains deferred to deployment.
+- Change only the URL fragment, preserving the current path and query. This supports static GitHub Pages project paths without server routes or a routing dependency. Milestone 5 configures production assets for `/mini-journal/`.
 
 ## Settings and destructive actions
 
@@ -91,7 +93,7 @@ Milestone 4 implementation:
 - Use Vitest for focused unit and integration tests covering journal logic, stored-data validation and restoration, missing and malformed data, read and write failures, pagination calculations and boundary changes, settings, and related application behavior.
 - Use Playwright for a small set of critical browser flows.
 - Milestone 3 end-to-end coverage must include create → reload, multiple-entry restoration, edit → reload, persistent deletion, storage-failure feedback with preserved writing, safe malformed-data handling, pagination navigation and indicators, and regression coverage for existing journal interactions.
-- Later Version 1 end-to-end coverage should add settings persistence and confirmed bulk deletion when those features are implemented.
+- Settings persistence and confirmed bulk deletion are covered by the Milestone 4 browser suite. Milestone 5 runs the complete suite against development and production preview, adding asset-loading, page-reopening, network-privacy, keyboard, and responsive checks.
 - Keep tests deterministic and proportional to the application. Avoid duplicating implementation details or building unnecessary test infrastructure.
 
 ## Security and data handling
@@ -112,9 +114,18 @@ Milestone 4 implementation:
 ## Deployment
 
 - Build Version 1 as a static Vite application for GitHub Pages.
-- When deployment is introduced, use GitHub Actions to install dependencies, run checks, build the production output, and deploy it.
-- Account for GitHub Pages project-path asset URLs in Vite configuration.
-- Do not add deployment configuration or workflows until explicitly requested.
+- Milestone 5 prepares `.github/workflows/deploy.yml` for `Gabriel-Artisan/mini-journal` on default branch `main`. Pull requests run checks; main-branch pushes and manual runs can deploy after checks pass.
+- Use official GitHub actions pinned to release commits. Install with `npm ci`, run unit and development-browser tests, build, run production-browser tests, and upload only `dist/`. Restrict Pages/OIDC write permissions to the dependent deployment job.
+- Vite uses `/mini-journal/` for build and preview, and `/` for development. Navigation changes only the fragment. Production tests use a separate preview on port 4174, without reusing an existing server.
+- Publication, committing, and pushing require explicit human authorization. No live deployment has been verified during preparation.
+
+### Production offline support
+
+`scripts/offline-plugin.js` emits `dist/sw.js` from `src/service-worker.js` and the final Vite bundle. The cache version hashes bundle contents, asset names, base path and worker template. The manifest contains the built HTML, JS and CSS; no runtime journal content is cached. `offline.js` registers it only in production at the configured project base, bypassing the HTTP cache for worker updates, and reports preparation/readiness/failure in a small status region.
+
+Installation caches the entire manifest before activation. Failure removes only the incomplete new cache. Do not call `skipWaiting`: an updated worker waits for existing controlled tabs to close, retaining the previous complete shell and drafts. Activation removes only obsolete caches matching this application's base-specific prefix and claims clients. The fetch handler serves cached application resources and the canonical HTML shell for project-root/index navigations (including queries and view hashes). It ignores other URLs, other origins, and non-GET requests; it never adds runtime responses to the cache.
+
+The original offline release discrepancy is resolved by this approved implementation and production browser coverage. Offline operation requires the initial cache installation to finish and the browser to retain it. Service Workers, CacheStorage and Web Locks require supported secure contexts. No installation prompts, manifest, push, synchronization, or backend are introduced. Production tests include offline mutations, a persistent-browser restart, failed installation, waiting updates and isolated cache cleanup. Separate development/production artifact folders prevent verification runs from interfering with each other.
 
 ## Implementation boundaries and risks
 

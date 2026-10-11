@@ -1,3 +1,4 @@
+import { createTestLocks } from './locks.js';
 import { describe, expect, it, vi } from 'vitest';
 import { createJournalStorage, createPreferenceStorage, DEFAULT_PREFERENCES, JOURNAL_STORAGE_KEY, PREFERENCES_STORAGE_KEY } from '../../src/storage.js';
 
@@ -34,15 +35,16 @@ describe('preference persistence', () => {
       .toEqual({ appearance: 'system', textSize: 'large' });
   });
 
-  it('keeps preferences, journal data, and unrelated data separate during bulk deletion', () => {
+  it('keeps preferences, journal data, and unrelated data separate during bulk deletion', async () => {
     const { preferences, storage, data } = setup();
     data.set('unrelated', 'keep');
-    const journal = createJournalStorage({ storageProvider: () => storage });
+    const journal = createJournalStorage({ lockProvider: () => createTestLocks(), storageProvider: () => storage });
     const entry = { id: '1', content: 'Keep until confirmed', createdAt: '2026-10-08T12:00:00Z' };
-    journal.saveEntries([entry]);
+    journal.loadEntries();
+    await journal.saveEntries([entry]);
     preferences.savePreferences({ appearance: 'dark', textSize: 'large' });
     expect(journal.loadEntries()).toEqual([entry]);
-    journal.saveEntries([]);
+    await journal.saveEntries([]);
     expect(data.get(JOURNAL_STORAGE_KEY)).toBe('[]');
     expect(preferences.loadPreferences().preferences).toEqual({ appearance: 'dark', textSize: 'large' });
     expect(data.get('unrelated')).toBe('keep');
@@ -59,12 +61,12 @@ describe('preference persistence', () => {
     expect(preferences.savePreferences({ appearance: 'dark', textSize: 'large' })).toEqual({ ok: true });
   });
 
-  it.each(['{broken', '[{"id":"invalid"}]'])('cannot bulk-delete unreadable journal data: %s', (raw) => {
+  it.each(['{broken', '[{"id":"invalid"}]'])('cannot bulk-delete unreadable journal data: %s', async (raw) => {
     const { preferences, storage, data } = setup();
     data.set(JOURNAL_STORAGE_KEY, raw);
-    const journal = createJournalStorage({ storageProvider: () => storage });
+    const journal = createJournalStorage({ lockProvider: () => createTestLocks(), storageProvider: () => storage });
     expect(() => journal.loadEntries()).toThrow();
-    expect(() => journal.saveEntries([])).toThrow(/blocked/);
+    await expect(journal.saveEntries([])).rejects.toThrow(/blocked/);
     preferences.savePreferences({ appearance: 'dark', textSize: 'large' });
     expect(data.get(JOURNAL_STORAGE_KEY)).toBe(raw);
   });

@@ -108,6 +108,14 @@ Delete-all preserves preferences and unsaved composer text, invalidates edits to
 
 See [the Milestone 4 review record](milestones/04-settings.md) for implementation decisions, acceptance criteria, and verification.
 
+## Milestone 5 — Offline use and concurrent-tab safety
+
+After an online production visit finishes preparing offline resources, the app can be reopened in the same browser profile without connectivity. Home, history, Settings, and journal create/edit/delete operations remain available. Offline preparation reports readiness or failure; it caches application files only, never journal content as network resources. Development does not register the worker.
+
+Journal mutations compare the current saved collection with the tab's last successfully loaded or saved snapshot under an exclusive browser Web Lock. A stale tab cannot create, edit, delete, or bulk-delete over newer data. Conflicts retain unsaved writing and explain that users should copy drafts before reloading to review current entries. There is no automatic merge or tab synchronization. Browsers without Web Locks can read entries and use Settings, but journal writes are blocked with an explanation rather than using an unsafe fallback.
+
+Offline use requires service-worker/cache support; journal writes require Web Locks. These APIs require a secure browser context, provided by GitHub Pages HTTPS and supported localhost development. Clearing or evicting site data may remove both saved entries and offline resources. New application versions activate after existing app tabs close, without forcing reload or discarding drafts.
+
 ## Definition of done for Version 1
 
 Version 1 is done when:
@@ -115,6 +123,8 @@ Version 1 is done when:
 - A user can create a valid entry and see it appear immediately.
 - A user can edit an existing entry, and the updated content persists across sessions without changing the entry's creation timestamp.
 - Entries remain available after closing and reopening the app in the same browser.
+- The production app reopens offline after successful resource preparation, supports journal operations offline, and preserves saved entries across an offline browser restart.
+- Stale or simultaneous tab mutations cannot silently overwrite newer saved entries in supported browsers; conflicts preserve unsaved writing and explain how to proceed.
 - Home shows the composer and a limited set of recent entries, while All Entries shows the complete journal history in reverse chronological order with creation times.
 - Home, All Entries, and Settings are reachable through clear desktop and mobile navigation.
 - Appearance and writing text-size settings apply correctly and persist across sessions, and the privacy and storage information is accurate and visible.

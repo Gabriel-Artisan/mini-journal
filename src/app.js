@@ -10,8 +10,10 @@ import {
 import { createJournalStorage, JournalStorageError } from './storage.js';
 import { initJournalUi } from './ui.js';
 import { initPreferences } from './preferences.js';
+import { prepareOffline } from './offline.js';
 
 initPreferences();
+if (import.meta.env.PROD) prepareOffline();
 
 let entries = [];
 let startupStorageError = '';
@@ -24,14 +26,17 @@ try {
   startupStorageError = 'We couldn’t load your saved journal. Your stored data was left unchanged, and new changes are blocked to protect it. Resolve the browser storage issue and reload to try again.';
 }
 
-function runJournalAction(action, storageFailureMessage) {
+async function runJournalAction(action, storageFailureMessage) {
   try {
     const nextEntries = action();
-    journalStorage.saveEntries(nextEntries);
+    await journalStorage.saveEntries(nextEntries);
     entries = nextEntries;
     return { ok: true, entries };
   } catch (error) {
     if (error instanceof JournalStorageError) {
+      if (['conflict', 'unsupported'].includes(error.code)) {
+        return { ok: false, message: error.message };
+      }
       return { ok: false, message: storageFailureMessage };
     }
 

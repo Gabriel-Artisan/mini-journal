@@ -147,6 +147,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete, o
   let currentPage = 1;
   let editingEntryId = null;
   let editingDraft = null;
+  let pendingEditId = null;
   let pendingDeleteId = null;
   let pendingDeleteAll = false;
   let deleteTrigger = null;
@@ -270,6 +271,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete, o
       cancelButton.dataset.action = 'cancel-edit';
       cancelButton.dataset.entryId = entry.id;
       cancelButton.textContent = 'Cancel';
+      cancelButton.disabled = pendingEditId === entry.id;
 
       const saveButton = document.createElement('button');
       saveButton.type = 'button';
@@ -277,6 +279,7 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete, o
       saveButton.dataset.action = 'save-edit';
       saveButton.dataset.entryId = entry.id;
       saveButton.textContent = 'Save changes';
+      saveButton.disabled = pendingEditId === entry.id;
 
       editActions.append(cancelButton, saveButton);
       editRegion.append(label, textarea, editMeta, editActions);
@@ -340,12 +343,10 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete, o
   }
 
   function focusEditingTextarea(id) {
-    requestAnimationFrame(() => {
-      const activeViewElement = root.querySelector(`#${activeView}-view`);
-      const textarea = activeViewElement?.querySelector(`[data-entry-edit="${CSS.escape(id)}"]`);
-      textarea?.focus();
-      textarea?.setSelectionRange(textarea.value.length, textarea.value.length);
-    });
+    const activeViewElement = root.querySelector(`#${activeView}-view`);
+    const textarea = activeViewElement?.querySelector(`[data-entry-edit="${CSS.escape(id)}"]`);
+    textarea?.focus();
+    textarea?.setSelectionRange(textarea.value.length, textarea.value.length);
   }
 
   function setActiveView(view, { moveFocus = true } = {}) {
@@ -411,16 +412,18 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete, o
   }
 
   function cancelDeletion() {
+    if (confirmDeleteButton.disabled) return;
     const all = pendingDeleteAll;
     closeDeleteDialog({ restoreFocus: true });
     announce(all ? 'Deletion cancelled. Your entries were not changed.' : 'Deletion cancelled. The entry was not changed.');
   }
 
-  function handleEntryListClick(event) {
+  async function handleEntryListClick(event) {
     const button = event.target.closest('[data-action]');
     if (!button) return;
 
     const { action, entryId } = button.dataset;
+    if (pendingEditId !== null && ['edit', 'cancel-edit', 'save-edit'].includes(action)) return;
     const entry = findEntry(entryId);
     if (!entry) return;
 
@@ -454,23 +457,47 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete, o
       const card = button.closest('.entry-card');
       const textarea = card.querySelector('[data-entry-edit]');
       const feedback = card.querySelector('.entry-edit__feedback');
-      const result = onUpdate(entryId, textarea.value);
+      const draft = textarea.value;
+      const actionView = activeView;
+      pendingEditId = entryId;
+      button.disabled = true;
+      card.querySelector('[data-action="cancel-edit"]').disabled = true;
+      const result = await onUpdate(entryId, draft);
+      pendingEditId = null;
+      root.querySelectorAll(`[data-entry-id="${CSS.escape(entryId)}"][data-action="save-edit"], [data-entry-id="${CSS.escape(entryId)}"][data-action="cancel-edit"]`)
+        .forEach((control) => { control.disabled = false; });
 
       if (!result.ok) {
-        feedback.textContent = result.message;
-        textarea.setAttribute('aria-invalid', 'true');
-        textarea.focus();
+        const currentCard = root.querySelector(`#${activeView}-view .entry-card[data-entry-id="${CSS.escape(entryId)}"]`);
+        const currentTextarea = currentCard?.querySelector('[data-entry-edit]');
+        if (currentTextarea) {
+          currentCard.querySelector('.entry-edit__feedback').textContent = result.message;
+          currentTextarea.setAttribute('aria-invalid', 'true');
+          currentTextarea.focus();
+        } else {
+          feedback.textContent = result.message;
+          announce(result.message, { tone: 'error' });
+        }
         return;
       }
 
+      const latestDraft = editingEntryId === entryId ? editingDraft : null;
       editingEntryId = null;
       editingDraft = null;
+      // If the user kept typing while persistence was pending, keep that work
+      // in the editor rather than replacing it with the saved snapshot.
+      if (latestDraft !== null && latestDraft !== draft) {
+        editingEntryId = entryId;
+        editingDraft = latestDraft;
+      }
       renderEntries(result.entries);
-      announce('Entry updated.', { tone: 'success' });
-      requestAnimationFrame(() => {
+      if (activeView === actionView) announce('Entry updated.', { tone: 'success' });
+      if (activeView === actionView && editingEntryId === entryId) {
+        focusEditingTextarea(entryId);
+      } else if (activeView === actionView) {
         const activeViewElement = root.querySelector(`#${activeView}-view`);
         activeViewElement?.querySelector(`[data-action="edit"][data-entry-id="${CSS.escape(entryId)}"]`)?.focus();
-      });
+      }
       return;
     }
 
@@ -500,20 +527,26 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete, o
     setComposerFeedback();
   });
 
-  saveEntryButton.addEventListener('click', () => {
-    const result = onCreate(composer.value);
+  saveEntryButton.addEventListener('click', async () => {
+    const draft = composer.value;
+    const actionView = activeView;
+    saveEntryButton.disabled = true;
+    const result = await onCreate(draft);
+    saveEntryButton.disabled = false;
     if (!result.ok) {
       setComposerFeedback(result.message);
       composer.focus();
       return;
     }
 
-    composer.value = '';
+    if (composer.value === draft) composer.value = '';
     setComposerFeedback();
     updateComposerCount();
     renderEntries(result.entries);
-    announce('Entry saved.', { tone: 'success' });
-    composer.focus();
+    if (activeView === actionView) {
+      announce('Entry saved.', { tone: 'success' });
+      composer.focus();
+    }
   });
 
   [recentEntriesList, allEntriesList].forEach((list) => {
@@ -584,18 +617,22 @@ export function initJournalUi({ root = document, onCreate, onUpdate, onDelete, o
     if (!clickedInside) cancelDeletion();
   });
 
-  confirmDeleteButton.addEventListener('click', () => {
+  confirmDeleteButton.addEventListener('click', async () => {
     if (!pendingDeleteId && !pendingDeleteAll) return;
 
     const all = pendingDeleteAll;
-    const result = all ? onDeleteAll() : onDelete(pendingDeleteId);
+    const deletedId = pendingDeleteId;
+    confirmDeleteButton.disabled = true;
+    cancelDeleteButton.disabled = true;
+    const result = await (all ? onDeleteAll() : onDelete(deletedId));
+    confirmDeleteButton.disabled = false;
+    cancelDeleteButton.disabled = false;
     if (!result.ok) {
       closeDeleteDialog({ restoreFocus: true });
       announce(result.message, { tone: 'error' });
       return;
     }
 
-    const deletedId = pendingDeleteId;
     closeDeleteDialog();
     if (all || editingEntryId === deletedId) {
       editingEntryId = null;

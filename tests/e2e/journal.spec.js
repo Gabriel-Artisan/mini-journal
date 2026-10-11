@@ -5,15 +5,17 @@ const composer = (page) => page.getByLabel('How was your day? What’s on your m
 async function createEntry(page, content) {
   await composer(page).fill(content);
   await page.getByRole('button', { name: 'Save entry' }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await expect(page.locator('#app-feedback')).toHaveText('Entry saved.');
 }
 
 test('validates creation and renders journal content as text', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
 
   await composer(page).fill('   ');
   await expect(page.locator('#character-count')).toHaveText('3 / 1,000');
   await page.getByRole('button', { name: 'Save entry' }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await expect(page.locator('#composer-feedback')).toHaveText('Write something before saving your entry.');
   await expect(composer(page)).toHaveValue('   ');
 
@@ -29,7 +31,7 @@ test('validates creation and renders journal content as text', async ({ page }) 
 });
 
 test('shows a recent subset and supports inline edit save and cancel across views', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   for (const entry of ['First reflection', 'Second reflection', 'Third reflection', 'Fourth reflection']) {
     await createEntry(page, entry);
   }
@@ -72,7 +74,7 @@ test('shows a recent subset and supports inline edit save and cancel across view
 });
 
 test('requires confirmation before deleting one entry', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntry(page, 'Keep this reflection');
   await createEntry(page, 'Delete this reflection');
 
@@ -95,7 +97,7 @@ test('requires confirmation before deleting one entry', async ({ page }) => {
 });
 
 test('dismisses deletion from the backdrop without removing the entry', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntry(page, 'Keep this after backdrop dismissal');
 
   const entryCard = page.locator('#recent-entries-list .entry-card');
@@ -121,7 +123,7 @@ test('dismisses deletion from the backdrop without removing the entry', async ({
 
 test('keeps navigation and journal operations usable at a mobile viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('./');
   await createEntry(page, 'A mobile reflection');
 
   const menuButton = page.locator('.menu-toggle');

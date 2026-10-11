@@ -11,6 +11,7 @@ async function createEntries(page, count = 2) {
   for (let i = 0; i < count; i++) {
     await page.locator('#journal-entry').fill(`Reflection ${i + 1}`);
     await page.getByRole('button', { name: 'Save entry', exact: true }).click();
+    await expect(page.locator('#save-entry')).toBeEnabled();
     await expect(page.locator('#app-feedback')).toHaveText('Entry saved.');
   }
 }
@@ -20,7 +21,7 @@ const dialog = (page) => page.getByRole('dialog', { name: 'Delete all journal en
 const beginDelete = (page) => page.getByRole('button', { name: 'Delete all journal entries', exact: true }).click();
 
 test('restores appearance and text size after reload, applying sizes only to journal text', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntries(page, 1);
   const headingSize = await page.locator('#composer-heading').evaluate((el) => getComputedStyle(el).fontSize);
   const buttonSize = await page.locator('#save-entry').evaluate((el) => getComputedStyle(el).fontSize);
@@ -53,7 +54,7 @@ test('restores appearance and text size after reload, applying sizes only to jou
 
 test('System follows live OS changes while explicit appearance overrides them', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' });
-  await page.goto('/');
+  await page.goto('./');
   await navigate(page, 'Settings');
   await expect(page.getByRole('radio', { name: 'System', exact: true })).toBeChecked();
   await expect(page.getByRole('radio', { name: 'Medium', exact: true })).toBeChecked();
@@ -77,7 +78,7 @@ test('System follows live OS changes while explicit appearance overrides them', 
 });
 
 test('keyboard radio choices and destructive cancellation preserve entries and restore focus', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntries(page);
   const original = await read(page, JOURNAL_STORAGE_KEY);
   await navigate(page, 'Settings');
@@ -114,7 +115,7 @@ test('keyboard radio choices and destructive cancellation preserve entries and r
 });
 
 test('bulk deletion clears every page and stale edits, persisting only the collection change', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntries(page, 11);
   await page.locator('#journal-entry').fill('Unsaved composer draft');
   await navigate(page, 'All Entries');
@@ -158,7 +159,7 @@ test('bulk deletion clears every page and stale edits, persisting only the colle
 });
 
 test('failed deletion preserves stored and visible entries and permits retry', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntries(page);
   const original = await read(page, JOURNAL_STORAGE_KEY);
   await page.evaluate((key) => {
@@ -185,7 +186,7 @@ test('failed deletion preserves stored and visible entries and permits retry', a
 });
 
 test('failed preference writes apply temporarily, give feedback, and support retry', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntries(page, 1);
   const journal = await read(page, JOURNAL_STORAGE_KEY);
   await navigate(page, 'Settings');
@@ -215,7 +216,7 @@ test('failed preference writes apply temporarily, give feedback, and support ret
 for (const raw of ['{broken', '[{"id":"invalid"}]']) {
   test(`Settings cannot overwrite unreadable journal data: ${raw}`, async ({ page }) => {
     await page.addInitScript(({ key, raw }) => localStorage.setItem(key, raw), { key: JOURNAL_STORAGE_KEY, raw });
-    await page.goto('/');
+    await page.goto('./');
     await navigate(page, 'All Entries');
     await navigate(page, 'Settings');
     await expect(page.locator('#delete-all')).toBeDisabled();
@@ -229,7 +230,7 @@ test('unavailable storage leaves settings usable and reports persistence limitat
   await page.addInitScript(() => {
     Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Blocked', 'SecurityError'); } });
   });
-  await page.goto('/');
+  await page.goto('./');
   await navigate(page, 'Settings');
   await expect(page.locator('#preferences-feedback')).toContainText('couldn’t read');
   await expect(page.locator('#delete-all')).toBeDisabled();
@@ -240,7 +241,7 @@ test('unavailable storage leaves settings usable and reports persistence limitat
 
 test('mobile Settings, large journal text and confirmation remain within the viewport', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
-  await page.goto('/');
+  await page.goto('./');
   await createEntries(page);
   await navigate(page, 'Settings');
   for (const appearance of ['Light', 'Dark']) {
@@ -261,6 +262,7 @@ test('mobile Settings, large journal text and confirmation remain within the vie
   await navigate(page, 'Home');
   await page.locator('#journal-entry').fill('A long reflection '.repeat(40));
   await page.getByRole('button', { name: 'Save entry', exact: true }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await navigate(page, 'All Entries');
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
 });

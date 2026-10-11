@@ -2,13 +2,14 @@ import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-08T12:00:00Z') });
-  await page.goto('/');
+  await page.goto('./');
   await page.clock.pauseAt(new Date('2026-10-08T12:01:00Z'));
 });
 
 async function save(page, text) {
   await page.locator('#journal-entry').fill(text);
   await page.getByRole('button', { name: 'Save entry', exact: true }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   // Advance the queued live-region announcement, without waiting on real time.
   await page.clock.runFor(20);
   await expect(page.locator('#app-feedback')).toHaveText('Entry saved.');
@@ -63,6 +64,7 @@ test('validation and storage errors remain visible after success timers and navi
   await save(page, 'A saved reflection');
   await page.locator('#journal-entry').fill('   ');
   await page.getByRole('button', { name: 'Save entry', exact: true }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await page.clock.runFor(5000);
   await expect(page.locator('#composer-feedback')).toHaveText('Write something before saving your entry.');
   await expect(page.locator('#journal-entry')).toHaveValue('   ');
@@ -73,6 +75,7 @@ test('validation and storage errors remain visible after success timers and navi
   });
   await page.locator('#recent-entries-list .entry-card').first().getByRole('button', { name: 'Delete', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Delete entry', exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeHidden();
   await page.clock.runFor(20);
   await expect(page.locator('#app-feedback')).toContainText('couldn’t delete this entry');
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
@@ -82,6 +85,7 @@ test('validation and storage errors remain visible after success timers and navi
   await expect(page.locator('#recent-entries-list .entry-card')).toHaveCount(2);
   await page.locator('#journal-entry').fill('Keep this unsaved writing');
   await page.getByRole('button', { name: 'Save entry', exact: true }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await page.clock.runFor(5000);
   await expect(page.locator('#composer-feedback')).toContainText('couldn’t save this entry');
   await expect(page.locator('#journal-entry')).toHaveValue('Keep this unsaved writing');

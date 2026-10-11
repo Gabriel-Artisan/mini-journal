@@ -6,6 +6,7 @@ const composer = (page) => page.getByLabel('How was your day? What’s on your m
 async function createEntry(page, content) {
   await composer(page).fill(content);
   await page.getByRole('button', { name: 'Save entry' }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await expect(page.locator('#app-feedback')).toHaveText('Entry saved.');
 }
 
@@ -15,7 +16,7 @@ async function openAllEntries(page) {
 }
 
 test('represents an empty journal with disabled pagination controls', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await openAllEntries(page);
 
   await expect(page.locator('#all-entries-list .empty-state')).toBeVisible();
@@ -28,7 +29,7 @@ test('represents an empty journal with disabled pagination controls', async ({ p
 });
 
 test('navigates journal pages and clamps the page after deletion', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   for (let number = 1; number <= 12; number += 1) {
     await createEntry(page, `Pagination entry ${String(number).padStart(2, '0')}`);
   }
@@ -89,7 +90,7 @@ test('navigates journal pages and clamps the page after deletion', async ({ page
 });
 
 test('starts on page one each time All Entries is opened', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   for (let number = 1; number <= 11; number += 1) {
     await createEntry(page, `Reopen entry ${number}`);
   }
@@ -115,7 +116,7 @@ test('keeps pagination comfortable at a mobile viewport', async ({ page }) => {
     window.localStorage.setItem(key, value);
   }, { key: JOURNAL_STORAGE_KEY, value: JSON.stringify(entries) });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('./');
 
   const menuButton = page.locator('.menu-toggle');
   await menuButton.click();

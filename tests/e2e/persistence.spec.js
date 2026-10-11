@@ -6,6 +6,7 @@ const composer = (page) => page.getByLabel('How was your day? What’s on your m
 async function createEntry(page, content) {
   await composer(page).fill(content);
   await page.getByRole('button', { name: 'Save entry' }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await expect(page.locator('#app-feedback')).toHaveText('Entry saved.');
 }
 
@@ -14,7 +15,7 @@ async function readStoredEntries(page) {
 }
 
 test('restores multiple entries after reload with their data and ordering intact', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntry(page, 'First persisted reflection');
   await createEntry(page, 'Second persisted reflection');
   await createEntry(page, 'Third persisted reflection');
@@ -41,7 +42,7 @@ test('restores multiple entries after reload with their data and ordering intact
 });
 
 test('persists edited content without changing the entry ID or timestamp', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntry(page, 'Original persisted reflection');
   const [originalEntry] = await readStoredEntries(page);
 
@@ -63,7 +64,7 @@ test('persists edited content without changing the entry ID or timestamp', async
 });
 
 test('persists individual deletion without affecting other entries', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntry(page, 'Keep persisted reflection');
   await createEntry(page, 'Delete persisted reflection');
 
@@ -85,7 +86,7 @@ test('persists individual deletion without affecting other entries', async ({ pa
 });
 
 test('preserves unsaved creation and edit text when storage writes fail', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await createEntry(page, 'Persisted before storage failure');
   const storedBeforeFailure = await readStoredEntries(page);
 
@@ -109,6 +110,7 @@ test('preserves unsaved creation and edit text when storage writes fail', async 
 
   await composer(page).fill('Unsaved new entry after storage failure');
   await page.getByRole('button', { name: 'Save entry' }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await expect(page.locator('#composer-feedback')).toContainText('couldn’t save this entry');
   await expect(composer(page)).toHaveValue('Unsaved new entry after storage failure');
 
@@ -133,7 +135,7 @@ test('preserves a failed edit draft through pagination and supports retry and ca
   }));
   const targetEntry = originalEntries.at(-1);
 
-  await page.goto('/');
+  await page.goto('./');
   await page.evaluate(({ key, value }) => {
     window.localStorage.setItem(key, value);
   }, { key: JOURNAL_STORAGE_KEY, value: JSON.stringify(originalEntries) });
@@ -208,13 +210,14 @@ test('protects malformed stored data from ordinary writes', async ({ page }) => 
     window.localStorage.setItem(key, value);
   }, { key: JOURNAL_STORAGE_KEY, value: malformedData });
 
-  await page.goto('/');
+  await page.goto('./');
 
   await expect(page.locator('#storage-feedback')).toContainText('stored data was left unchanged');
   await expect(page.locator('#recent-entries-list .empty-state')).toBeVisible();
 
   await composer(page).fill('Do not overwrite malformed data');
   await page.getByRole('button', { name: 'Save entry' }).click();
+  await expect(page.locator('#save-entry')).toBeEnabled();
   await expect(page.locator('#composer-feedback')).toContainText('couldn’t save this entry');
   await expect(composer(page)).toHaveValue('Do not overwrite malformed data');
 

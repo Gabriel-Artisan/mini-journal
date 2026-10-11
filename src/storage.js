@@ -48,6 +48,8 @@ const STORAGE_ERROR_MESSAGES = {
   read: 'Journal storage could not be read.',
   serialize: 'Journal entries could not be serialized.',
   write: 'Journal entries could not be saved.',
+  conflict: 'Your journal changed in another tab. This change was not saved, and your writing is still here. Copy any unsaved writing, then reload to see the latest entries before trying again.',
+  unsupported: 'This browser cannot safely coordinate journal changes between tabs. Your writing is still here. Use a current browser over HTTPS to save entries.',
 };
 
 export class JournalStorageError extends Error {
@@ -95,8 +97,10 @@ export function createJournalStorage({
   storageProvider = () => window.localStorage,
   parse = JSON.parse,
   serialize = JSON.stringify,
+  lockProvider = () => globalThis.navigator?.locks,
 } = {}) {
   let writesBlocked = false;
+  let savedSnapshot;
 
   function blockWritesAndThrow(error) {
     writesBlocked = true;
@@ -114,6 +118,7 @@ export function createJournalStorage({
 
     if (rawValue === null) {
       writesBlocked = false;
+      savedSnapshot = rawValue;
       return [];
     }
 
@@ -127,6 +132,7 @@ export function createJournalStorage({
     try {
       const entries = validateStoredEntries(parsedValue);
       writesBlocked = false;
+      savedSnapshot = rawValue;
       return entries;
     } catch (error) {
       blockWritesAndThrow(
@@ -135,7 +141,7 @@ export function createJournalStorage({
     }
   }
 
-  function saveEntries(entries) {
+  async function saveEntries(entries) {
     if (writesBlocked) throw createStorageError('blocked');
 
     const validEntries = validateStoredEntries(entries);
@@ -147,9 +153,22 @@ export function createJournalStorage({
       throw createStorageError('serialize', error);
     }
 
+    const locks = lockProvider();
+    if (!locks?.request) throw createStorageError('unsupported');
+    // Capture the snapshot before waiting: two saves from the same stale state
+    // must not both commit, even if they originate in the same tab.
+    const expectedSnapshot = savedSnapshot;
     try {
-      storageProvider().setItem(key, serializedEntries);
+      await locks.request(key, { mode: 'exclusive' }, () => {
+        const storage = storageProvider();
+        if (expectedSnapshot === undefined || storage.getItem(key) !== expectedSnapshot) {
+          throw createStorageError('conflict');
+        }
+        storage.setItem(key, serializedEntries);
+        savedSnapshot = serializedEntries;
+      });
     } catch (error) {
+      if (error instanceof JournalStorageError) throw error;
       throw createStorageError('write', error);
     }
   }
