@@ -110,7 +110,7 @@ See [the Milestone 4 review record](milestones/04-settings.md) for implementatio
 
 ## Milestone 5 — Offline use and concurrent-tab safety
 
-After an online production visit finishes preparing offline resources, the app can be reopened in the same browser profile without connectivity. Home, history, Settings, and journal create/edit/delete operations remain available. Offline preparation reports readiness or failure; it caches application files only, never journal content as network resources. Development does not register the worker.
+After an online production visit finishes preparing offline resources, the app can be reopened in the same browser profile without connectivity. Home, history, Settings, and journal create/edit/delete operations remain available. Offline preparation shows progress or failure and hides its status after success; it caches application files only, never journal content as network resources. Development does not register the worker.
 
 Journal mutations compare the current saved collection with the tab's last successfully loaded or saved snapshot under an exclusive browser Web Lock. A stale tab cannot create, edit, delete, or bulk-delete over newer data. Conflicts retain unsaved writing and explain that users should copy drafts before reloading to review current entries. There is no automatic merge or tab synchronization. Browsers without Web Locks can read entries and use Settings, but journal writes are blocked with an explanation rather than using an unsafe fallback.
 

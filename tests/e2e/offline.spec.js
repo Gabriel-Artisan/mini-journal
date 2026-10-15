@@ -6,8 +6,9 @@ import { join } from 'node:path';
 import { JOURNAL_STORAGE_KEY } from '../../src/storage.js';
 
 async function ready(page) {
-  await expect(page.locator('#offline-status')).toHaveText('Ready for offline use in this browser.');
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await expect(page.locator('#offline-status')).toBeHidden();
+  await expect(page.locator('#offline-status')).toBeEmpty();
 }
 async function create(page, text) {
   await page.locator('#journal-entry').fill(text);
@@ -18,6 +19,26 @@ async function create(page, text) {
 
 test.describe('production offline support', () => {
   test.skip(({ baseURL }) => new URL(baseURL).pathname !== '/mini-journal/', 'Offline caching is production-only');
+
+  for (const width of [320, 390, 1440]) {
+    test(`successful offline preparation leaves no status or layout space on any view at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: width === 1440 ? 1100 : 844 });
+      await page.goto('./');
+      await ready(page);
+      for (const view of ['Home', 'All Entries', 'Settings']) {
+        const menu = page.getByRole('button', { name: 'Open navigation menu' });
+        if (await menu.isVisible()) await menu.click();
+        await page.getByRole('button', { name: view, exact: true }).click();
+        await expect(page.getByText('Ready for offline use in this browser.', { exact: true })).toHaveCount(0);
+        await expect(page.locator('#offline-status')).toBeHidden();
+        expect(await page.locator('#offline-status').boundingBox()).toBeNull();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+      }
+      await expect(page.getByRole('heading', { name: 'Privacy & storage', exact: true })).toBeVisible();
+      await expect(page.locator('.settings-card--privacy')).toContainText('stored only in this browser on this device');
+      await expect(page.locator('.storage-callout')).toContainText('Browser storage is not a cloud backup.');
+    });
+  }
 
   test('reopens offline and supports create, edit, individual and bulk deletion with Settings intact', async ({ page, context, baseURL }) => {
     await page.goto('./');

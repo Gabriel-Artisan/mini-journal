@@ -22,7 +22,8 @@ export async function prepareOffline() {
       });
     }
     await navigator.serviceWorker.ready;
-    status.textContent = 'Ready for offline use in this browser.';
+    status.textContent = '';
+    status.hidden = true;
   } catch {
     status.textContent = 'Offline use couldn’t be prepared. Reopen with an internet connection to try again.';
   }

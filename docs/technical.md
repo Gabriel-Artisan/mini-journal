@@ -121,7 +121,7 @@ Milestone 4 implementation:
 
 ### Production offline support
 
-`scripts/offline-plugin.js` emits `dist/sw.js` from `src/service-worker.js` and the final Vite bundle. The cache version hashes bundle contents, asset names, base path and worker template. The manifest contains the built HTML, JS and CSS; no runtime journal content is cached. `offline.js` registers it only in production at the configured project base, bypassing the HTTP cache for worker updates, and reports preparation/readiness/failure in a small status region.
+`scripts/offline-plugin.js` emits `dist/sw.js` from `src/service-worker.js` and the final Vite bundle. The cache version hashes bundle contents, asset names, base path and worker template. The manifest contains the built HTML, JS and CSS; no runtime journal content is cached. `offline.js` registers it only in production at the configured project base, bypassing the HTTP cache for worker updates, and reports preparation/failure in a small status region, clearing and hiding the region after successful preparation so it occupies no layout space.
 
 Installation caches the entire manifest before activation. Failure removes only the incomplete new cache. Do not call `skipWaiting`: an updated worker waits for existing controlled tabs to close, retaining the previous complete shell and drafts. Activation removes only obsolete caches matching this application's base-specific prefix and claims clients. The fetch handler serves cached application resources and the canonical HTML shell for project-root/index navigations (including queries and view hashes). It ignores other URLs, other origins, and non-GET requests; it never adds runtime responses to the cache.
 

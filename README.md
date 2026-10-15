@@ -10,7 +10,7 @@ A private, lightweight place to write short reflections and revisit them in the 
 - Choose Light, Dark, or System appearance and Small, Medium, or Large writing/reading text.
 - Persist saved entries and preferences locally, with clear validation and storage-failure feedback.
 - Desktop/mobile navigation and keyboard controls.
-- Reopen and journal offline after the production page reports that offline preparation is ready.
+- Reopen and journal offline after the production page finishes offline preparation.
 - Reject stale tab writes, keeping unsaved drafts and newer saved entries intact.
 
 **Release status:** the human developer accepted Version 1 and authorized publication on October 11, 2026; see the [release audit](docs/milestones/05-release-preparation.md). Confirm the deployment workflow and actual HTTPS application before marking the public release complete.
@@ -56,7 +56,7 @@ GitHub Pages must be available for the repository's visibility and account plan.
 2. In repository **Settings → Pages**, select **GitHub Actions** as the source. Configure the `github-pages` environment to allow `main`; use required reviewers if individual deployment approval is wanted and supported by the repository plan.
 3. Push the approved changes to `main`, or run the workflow manually on `main`. Confirm both build and deploy jobs succeed and use the deployment job's reported URL.
 4. At the actual HTTPS URL, verify JS/CSS requests succeed; test Home, `#entries`, and `#settings` directly, reload, and Back/Forward. Create, edit, reload, cancel/confirm deletion, and change/reload Settings using disposable entries.
-5. Check a mobile viewport and keyboard navigation. Wait for “Ready for offline use in this browser,” then disconnect, reopen, create/edit/delete, and restart the browser offline. Verify that stale writes from a second tab are rejected with their drafts retained.
+5. Check a mobile viewport and keyboard navigation. Wait for the offline preparation indicator to disappear, then disconnect, reopen, create/edit/delete, and restart the browser offline. Verify that stale writes from a second tab are rejected with their drafts retained.
 
 If the repository name or hosting domain changes, review `vite.config.js`, the production test URL, and these instructions. Hash navigation needs no server rewrite or custom 404 route. See the official [Vite Pages guide](https://vite.dev/guide/static-deploy.html#github-pages) and [GitHub workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
@@ -70,7 +70,7 @@ There is no backup, export, synchronization, or encryption layer. Unsaved drafts
 
 ## Offline use and browser compatibility
 
-The production worker caches built application files only. Wait for the readiness message after the first online visit before reopening offline. Preparation failures leave the journal usable online and explain how to retry. Clearing or evicting site data can remove offline resources and entries; an initial offline visit cannot load the app.
+The production worker caches built application files only. Wait for the preparation indicator to disappear after the first online visit before reopening offline. Successful preparation leaves no persistent status message. Preparation failures leave the journal usable online and explain how to retry. Clearing or evicting site data can remove offline resources and entries; an initial offline visit cannot load the app.
 
 Updates install a complete new cache and wait until existing Mini Journal tabs close. Close all app tabs after saving your work, then reopen to use an installed update. No forced reload or draft deletion occurs. Only obsolete Mini Journal caches for this project path are removed; unrelated caches are retained.
 
