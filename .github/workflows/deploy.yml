@@ -1,21 +1,29 @@
-name: Verify and deploy GitHub Pages
+name: Deploy approved static website
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      version:
+        description: Approved application version
+        required: true
+        default: '1.2.0'
+        type: string
+      source_commit:
+        description: Approved private source commit (full SHA)
+        required: true
+        default: '3777b0e04918ca22a7729e4d48371ea99a80f721'
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'deployment' }}
+  group: pages-production
   cancel-in-progress: false
 
 jobs:
-  build:
+  package:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -24,20 +32,46 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm test
-      - run: npm run build
-      - run: npm run test:production
+      - name: Verify approved artifact and complete file checksums
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+          EXPECTED_COMMIT: ${{ inputs.source_commit }}
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { createHash } from 'node:crypto';
+          import { lstat, readFile, readdir } from 'node:fs/promises';
+          assert((await lstat('site')).isDirectory());
+          assert(!(await lstat('site')).isSymbolicLink());
+          assert(!(await lstat('site/assets')).isSymbolicLink());
+          assert((await lstat('site/release.json')).isFile());
+          const manifest = JSON.parse(await readFile('site/release.json', 'utf8'));
+          assert(/^\d+\.\d+\.\d+$/.test(manifest.version));
+          assert(/^[a-f0-9]{40}$/.test(manifest.sourceCommit));
+          assert.equal(manifest.version, process.env.EXPECTED_VERSION);
+          assert.equal(manifest.sourceCommit, process.env.EXPECTED_COMMIT);
+          const files = Object.keys(manifest.files).sort();
+          assert.equal(files.length, 4);
+          assert(files.includes('index.html') && files.includes('sw.js'));
+          assert.equal(files.filter(p => /^assets\/index-[A-Za-z0-9_-]+\.js$/.test(p)).length, 1);
+          assert.equal(files.filter(p => /^assets\/index-[A-Za-z0-9_-]+\.css$/.test(p)).length, 1);
+          const actual = (await readdir('site')).filter(p => p !== 'assets' && p !== 'release.json');
+          actual.push(...(await readdir('site/assets')).map(p => 'assets/' + p));
+          assert.deepEqual(actual.sort(), files);
+          for (const path of files) {
+            assert((await lstat('site/' + path)).isFile());
+            assert(/^[a-f0-9]{64}$/.test(manifest.files[path]));
+            const bytes = await readFile('site/' + path);
+            assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.files[path]);
+          }
+          console.log('Approved version, source and all production checksums verified.');
+          NODE
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
-          path: dist
+          path: site
 
   deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: build
+    needs: package
     runs-on: ubuntu-latest
     permissions:
       pages: write

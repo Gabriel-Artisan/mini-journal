@@ -8,7 +8,8 @@
       content="Mini Journal is a calm, private place for short daily reflections."
     />
     <title>Mini Journal</title>
-    <script type="module" src="/src/app.js"></script>
+    <script type="module" crossorigin src="/mini-journal/assets/index-Bfqc2LW3.js"></script>
+    <link rel="stylesheet" crossorigin href="/mini-journal/assets/index-D1RB3IGT.css">
   </head>
   <body>
     <div class="page-shell">
@@ -88,6 +89,9 @@
                 <time class="composer-card__date" id="current-date"></time>
               </div>
 
+              <label class="field-label title-label" for="entry-title">Title (optional)</label>
+              <input class="entry-title-input" id="entry-title" type="text" maxlength="120" aria-describedby="composer-feedback" />
+
               <label class="composer-card__prompt" for="journal-entry">
                 How was your day? What’s on your mind?
               </label>
@@ -105,6 +109,10 @@
 
               <p class="form-feedback" id="composer-feedback" role="alert"></p>
 
+              <div id="composer-tags"></div>
+              <p id="new-draft-status" class="field-hint" role="status" aria-live="polite"></p>
+              <button id="retry-new-draft" class="text-button" type="button" hidden>Retry preserving draft</button>
+
               <div class="composer-card__actions">
                 <button class="save-button" id="save-entry" type="button">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -112,6 +120,7 @@
                   </svg>
                   Save entry
                 </button>
+                <button class="text-button" id="discard-new-draft" type="button" hidden>Discard draft</button>
               </div>
             </section>
 
@@ -124,6 +133,11 @@
           <section class="recent-entries" aria-labelledby="recent-entries-heading">
             <h2 id="recent-entries-heading" tabindex="-1">Recent entries</h2>
 
+            <p id="edit-draft-status" class="field-hint" role="status" aria-live="polite"></p>
+            <button id="retry-edit-draft" class="text-button" type="button" hidden>Retry preserving edit</button>
+            <button id="resume-edit-draft" class="text-button" type="button" hidden>Resume unfinished edit</button>
+            <div id="orphan-edit" hidden></div>
+
             <div class="entry-list" id="recent-entries-list"></div>
           </section>
         </section>
@@ -134,6 +148,19 @@
             <h1 id="all-entries-heading" tabindex="-1">All Entries</h1>
             <p>Your complete journal history, newest first.</p>
           </header>
+
+          <section class="journal-filters" aria-label="Find entries">
+            <label class="field-label" for="journal-search">Search your journal</label>
+            <div class="journal-search-row">
+              <input id="journal-search" type="search" placeholder="Search titles, entries, and tags…" aria-controls="all-entries-list" />
+              <button class="secondary-button" id="clear-search" type="button" hidden>Clear search</button>
+            </div>
+            <div class="filter-actions">
+              <button class="tag-pill tag-pill--selected" id="active-tag" type="button" hidden></button>
+              <button class="text-button" id="clear-filters" type="button" hidden>Clear all filters</button>
+            </div>
+            <p class="field-hint" id="search-results" role="status" aria-live="polite" aria-atomic="true"></p>
+          </section>
 
           <div class="entry-list entry-list--all" id="all-entries-list"></div>
 
@@ -185,7 +212,19 @@
                 <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="12" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3m-5 5v3"/></svg>
                 <div><h2 id="privacy-heading">Privacy &amp; storage</h2><p>Your journal entries are stored only in this browser on this device. They are not sent to an application server, account, or cloud service.</p></div>
               </div>
-              <p class="storage-callout"><span aria-hidden="true">ⓘ</span><span>Clearing browser or site data may permanently remove your entries. They won’t appear in another browser or on another device. Browser storage is not a cloud backup.</span></p>
+              <p class="storage-callout"><span aria-hidden="true">ⓘ</span><span>Clearing browser or site data may permanently remove your entries. They won’t appear in another browser or on another device. Browser storage is not a cloud backup. Unfinished drafts are also kept in this browser until saved or discarded.</span></p>
+            </section>
+            <section class="settings-card settings-card--backup" aria-labelledby="backup-heading">
+              <div class="settings-card__description">
+                <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5Z M14 3v5h5M8 13h8m-8 4h8"/></svg>
+                <div><h2 id="backup-heading">A copy of your journal</h2><p id="backup-description">Save a JSON file of all saved entries, or import a previous copy by merging or replacing entries. Drafts and appearance settings are not included. Your file stays on your device and is not uploaded.</p></div>
+              </div>
+              <div class="backup-actions">
+                <button type="button" class="secondary-button" id="export-journal" aria-describedby="backup-description">Save a copy</button>
+                <button type="button" class="secondary-button" id="import-journal" aria-describedby="backup-description">Restore from a file</button>
+                <input type="file" id="backup-file" accept=".json,application/json" aria-label="Choose a Mini Journal JSON backup" hidden />
+              </div>
+              <p id="backup-feedback" role="status" aria-live="polite"></p>
             </section>
             <section class="settings-card" aria-labelledby="data-heading">
               <div class="settings-card__description">
@@ -213,6 +252,50 @@
         <div class="confirmation-dialog__actions">
           <button class="secondary-button" id="cancel-delete" type="button">Cancel</button>
           <button class="danger-button" id="confirm-delete" type="button">Delete entry</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="confirmation-dialog" id="export-dialog" aria-labelledby="export-dialog-title" aria-describedby="export-dialog-description">
+      <div class="confirmation-dialog__content">
+        <p class="confirmation-dialog__eyebrow">Save a copy</p>
+        <h2 id="export-dialog-title">Unfinished writing is not included</h2>
+        <p id="export-dialog-description">This backup includes saved journal entries only. Unfinished drafts and unsaved edits are not included. You can review them first, download saved entries only, or cancel. Your unfinished writing will be kept.</p>
+        <div class="confirmation-dialog__actions export-dialog__actions">
+          <button class="secondary-button" id="cancel-export" type="button">Cancel</button>
+          <button class="secondary-button" id="review-export-writing" type="button">Review unfinished writing</button>
+          <button class="save-button save-button--compact" id="confirm-export" type="button">Download saved entries only</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="confirmation-dialog" id="restore-writing-dialog" aria-labelledby="restore-writing-title" aria-describedby="restore-writing-description">
+      <div class="confirmation-dialog__content">
+        <h2 id="restore-writing-title">You have unfinished writing</h2>
+        <div id="restore-writing-description">
+          <p>Before importing a journal backup, please save or discard your unfinished drafts and edits.</p>
+          <p>This helps protect your writing while restoring entries.</p>
+        </div>
+        <div class="confirmation-dialog__actions">
+          <button class="secondary-button" id="cancel-restore-writing" type="button">Cancel</button>
+          <button class="save-button save-button--compact" id="review-restore-writing" type="button">Review unfinished writing</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="confirmation-dialog" id="restore-dialog" aria-labelledby="restore-dialog-title" aria-describedby="restore-dialog-description">
+      <div class="confirmation-dialog__content">
+        <p class="confirmation-dialog__eyebrow">Restore from a file</p>
+        <h2 id="restore-dialog-title">Import your saved journal</h2>
+        <fieldset class="import-modes" id="import-modes">
+          <legend>How would you like to import?</legend>
+          <label><input type="radio" name="import-mode" value="merge" checked /> Merge entries</label>
+          <label><input type="radio" name="import-mode" value="replace" /> Replace journal</label>
+        </fieldset>
+        <p id="restore-dialog-description" role="status" aria-live="polite"></p>
+        <div class="confirmation-dialog__actions">
+          <button class="secondary-button" id="cancel-restore" type="button">Cancel</button>
+          <button class="danger-button" id="confirm-restore" type="button">Replace journal</button>
         </div>
       </div>
     </dialog>

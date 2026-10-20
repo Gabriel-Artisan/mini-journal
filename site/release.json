@@ -1,0 +1,10 @@
+{
+  "version": "1.2.0",
+  "sourceCommit": "3777b0e04918ca22a7729e4d48371ea99a80f721",
+  "files": {
+    "assets/index-Bfqc2LW3.js": "0e85aacf9d992e1114ce006956cc6e9e03e8b4343b3cb378b075a53eede85226",
+    "assets/index-D1RB3IGT.css": "5243ab11190b370e4e7a4504e3c87354d6ae7d20432152bf03957cf9e268ee1e",
+    "index.html": "7c40aa12c7f4ae0ec47a1b3a38e9148ed161b5712be01e04bd1fae0a1e60b3dc",
+    "sw.js": "de47e23eb1ef2c2954ad0e42deb63937ca7af3ff97e9918212e57334639a63ff"
+  }
+}
