@@ -1,10 +1,10 @@
 {
-  "version": "1.2.1",
-  "sourceCommit": "a3ddd5a4377ec30d9940e87aa4f5f7f7806fff85",
+  "version": "1.3.0",
+  "sourceCommit": "b2403c7a2d5d853be9106deb501127bd3587dc6b",
   "files": {
-    "assets/index-CvMNY5Pj.css": "a972d0a147425fa025ca6e6dc017afbe7f1b4d72e8f3c620b022701b28192563",
-    "assets/index-DRwx2uWy.js": "d3e14c129ae3bda2f78fa00b8ad4cb879af8b3e73261a41872bf597866f3cc9b",
-    "index.html": "17c1eda09fb22788e1d1f5ad839946275025a2d13656ba56479d4ac6ac77ec59",
-    "sw.js": "8d4614978e78139fae0763a0d02468c622003ad8414ac909ac32c3efe85cf1cd"
+    "assets/index-BewHhtj_.js": "04f7e746a2d4f73b8e136b076e6731ef0a8a551332397d73173667306ed2b37c",
+    "assets/index-yI-O2QCG.css": "4fe83fb84484e2db2b7fd55f41c41721c67d4a4ff153e063a9a858a18716bf60",
+    "index.html": "e9a4790b17f56f53e0e90bbec799609edfe7e6dfca8e7fb107e73668455b7163",
+    "sw.js": "41154bdd35a391314721fc97b8928002b96fc3616027281dff3ec31de17bc4ce"
   }
 }

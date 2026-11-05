@@ -8,8 +8,8 @@
       content="Mini Journal is a calm, private place for short daily reflections."
     />
     <title>Mini Journal</title>
-    <script type="module" crossorigin src="/mini-journal/assets/index-DRwx2uWy.js"></script>
-    <link rel="stylesheet" crossorigin href="/mini-journal/assets/index-CvMNY5Pj.css">
+    <script type="module" crossorigin src="/mini-journal/assets/index-BewHhtj_.js"></script>
+    <link rel="stylesheet" crossorigin href="/mini-journal/assets/index-yI-O2QCG.css">
   </head>
   <body>
     <div class="page-shell">
@@ -39,7 +39,7 @@
 
       <header class="site-header" id="home">
         <div class="branding">
-          <a class="brand" href="#home" data-view="home" aria-label="Mini Journal home">
+          <a class="brand" href="#home" data-view="home" aria-label="Mini Journal home" data-i18n-aria-label="Mini Journal home">
             <svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true">
               <path d="M15 55C25 42 33 30 48 10" />
               <ellipse cx="22" cy="39" rx="8" ry="16" transform="rotate(-40 22 39)" />
@@ -48,10 +48,10 @@
             </svg>
             <span class="brand__copy">
               <span class="brand__name">Mini Journal</span>
-              <span class="brand__tagline">A calmer mind, one note at a time.</span>
+              <span class="brand__tagline" data-i18n="Your words, your space.">Your words, your space.</span>
             </span>
           </a>
-          <p class="brand__release"><span class="brand__early-access">Early access</span> <span aria-hidden="true">·</span> <span>Version 1.2.1</span></p>
+          <p class="brand__release"><span class="brand__early-access" data-i18n="Early access">Early access</span> <span aria-hidden="true">·</span> <span data-i18n-version="1.3.0">Version 1.3.0</span></p>
         </div>
 
         <button
@@ -59,17 +59,17 @@
           type="button"
           aria-expanded="false"
           aria-controls="primary-navigation"
-          aria-label="Open navigation menu"
+          aria-label="Open navigation menu" data-i18n-aria-label="Open navigation menu"
         >
           <span></span>
           <span></span>
           <span></span>
         </button>
 
-        <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation">
-          <button class="primary-nav__link is-active" type="button" data-view="home" aria-current="page">Home</button>
-          <button class="primary-nav__link" type="button" data-view="all-entries">All Entries</button>
-          <button class="primary-nav__link" type="button" data-view="settings">Settings</button>
+        <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation" data-i18n-aria-label="Primary navigation">
+          <button class="primary-nav__link is-active" type="button" data-view="home" aria-current="page" data-i18n="Home">Home</button>
+          <button class="primary-nav__link" type="button" data-view="all-entries" data-i18n="All Entries">All Entries</button>
+          <button class="primary-nav__link" type="button" data-view="settings" data-i18n="Settings">Settings</button>
         </nav>
       </header>
 
@@ -86,25 +86,21 @@
                     <path d="M5 28C12 20 17 13 27 4" />
                     <ellipse cx="11" cy="20" rx="5" ry="9" transform="rotate(-42 11 20)" />
                     <ellipse cx="20" cy="11" rx="5" ry="9" transform="rotate(40 20 11)" />
-                  </svg>
-                  Write a new entry
-                </h1>
+                  </svg><span data-i18n="Write a new entry">Write a new entry</span></h1>
                 <time class="composer-card__date" id="current-date"></time>
               </div>
 
-              <label class="field-label title-label" for="entry-title">Title (optional)</label>
+              <label class="field-label title-label" for="entry-title" data-i18n="Title (optional)">Title (optional)</label>
               <input class="entry-title-input" id="entry-title" type="text" maxlength="120" aria-describedby="composer-feedback" />
 
-              <label class="composer-card__prompt" for="journal-entry">
-                How was your day? What’s on your mind?
-              </label>
+              <label class="composer-card__prompt" for="journal-entry" data-i18n="How was your day? What’s on your mind?">How was your day? What’s on your mind?</label>
 
               <div class="textarea-wrap">
                 <textarea
                   id="journal-entry"
                   name="journal-entry"
                   maxlength="1000"
-                  placeholder="Write here..."
+                  placeholder="Write here..." data-i18n-placeholder="Write here..."
                   aria-describedby="character-count composer-feedback"
                 ></textarea>
                 <output id="character-count" for="journal-entry" aria-live="polite">0 / 1,000</output>
@@ -114,31 +110,29 @@
 
               <div id="composer-tags"></div>
               <p id="new-draft-status" class="field-hint" role="status" aria-live="polite"></p>
-              <button id="retry-new-draft" class="text-button" type="button" hidden>Retry preserving draft</button>
+              <button id="retry-new-draft" class="text-button" type="button" hidden data-i18n="Retry preserving draft">Retry preserving draft</button>
 
               <div class="composer-card__actions">
                 <button class="save-button" id="save-entry" type="button">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M5 20C9 14 13 9 20 4M8 15C4 13 4 9 5 6C9 7 12 9 12 12M13 10C13 6 16 3 20 2C21 6 19 10 15 12" />
-                  </svg>
-                  Save entry
-                </button>
-                <button class="text-button" id="discard-new-draft" type="button" hidden>Discard draft</button>
+                  </svg><span data-i18n="Save entry">Save entry</span></button>
+                <button class="text-button" id="discard-new-draft" type="button" hidden data-i18n="Discard draft">Discard draft</button>
               </div>
             </section>
 
             <blockquote class="journal-quote">
               <span aria-hidden="true">“</span>
-              <p>Small notes<br />for a more meaningful tomorrow.</p>
+              <p><span data-i18n="Small notes">Small notes</span><br /><span data-i18n="for a more meaningful tomorrow.">for a more meaningful tomorrow.</span></p>
             </blockquote>
           </div>
 
           <section class="recent-entries" aria-labelledby="recent-entries-heading">
-            <h2 id="recent-entries-heading" tabindex="-1">Recent entries</h2>
+            <h2 id="recent-entries-heading" tabindex="-1" data-i18n="Recent entries">Recent entries</h2>
 
             <p id="edit-draft-status" class="field-hint" role="status" aria-live="polite"></p>
-            <button id="retry-edit-draft" class="text-button" type="button" hidden>Retry preserving edit</button>
-            <button id="resume-edit-draft" class="text-button" type="button" hidden>Resume unfinished edit</button>
+            <button id="retry-edit-draft" class="text-button" type="button" hidden data-i18n="Retry preserving edit">Retry preserving edit</button>
+            <button id="resume-edit-draft" class="text-button" type="button" hidden data-i18n="Resume unfinished edit">Resume unfinished edit</button>
             <div id="orphan-edit" hidden></div>
 
             <div class="entry-list" id="recent-entries-list"></div>
@@ -147,98 +141,114 @@
 
         <section class="all-entries-view app-view" id="all-entries-view" aria-labelledby="all-entries-heading" hidden>
           <header class="view-heading">
-            <p class="view-heading__eyebrow">Journal history</p>
-            <h1 id="all-entries-heading" tabindex="-1">All Entries</h1>
-            <p>Your complete journal history, newest first.</p>
+            <p class="view-heading__eyebrow" data-i18n="Journal history">Journal history</p>
+            <h1 id="all-entries-heading" tabindex="-1" data-i18n="All Entries">All Entries</h1>
+            <p data-i18n="Your complete journal history, newest first.">Your complete journal history, newest first.</p>
           </header>
 
-          <section class="journal-filters" aria-label="Find entries">
-            <label class="field-label" for="journal-search">Search your journal</label>
+          <section class="journal-filters" aria-label="Find entries" data-i18n-aria-label="Find entries">
+            <label class="field-label" for="journal-search" data-i18n="Search your journal">Search your journal</label>
             <div class="journal-search-row">
-              <input id="journal-search" type="search" placeholder="Search titles, entries, and tags…" aria-controls="all-entries-list" />
-              <button class="secondary-button" id="clear-search" type="button" hidden>Clear search</button>
+              <input id="journal-search" type="search" placeholder="Search titles, entries, and tags…" data-i18n-placeholder="Search titles, entries, and tags…" aria-controls="all-entries-list" />
+              <button class="secondary-button" id="clear-search" type="button" hidden data-i18n="Clear search">Clear search</button>
             </div>
             <div class="filter-actions">
               <button class="tag-pill tag-pill--selected" id="active-tag" type="button" hidden></button>
-              <button class="text-button" id="clear-filters" type="button" hidden>Clear all filters</button>
+              <button class="text-button" id="clear-filters" type="button" hidden data-i18n="Clear all filters">Clear all filters</button>
             </div>
             <p class="field-hint" id="search-results" role="status" aria-live="polite" aria-atomic="true"></p>
           </section>
 
           <div class="entry-list entry-list--all" id="all-entries-list"></div>
 
-          <nav class="pagination" id="entries-pagination" aria-label="All Entries pagination">
-            <p class="pagination__range" id="pagination-range" aria-live="polite">Showing 0 of 0 entries</p>
+          <nav class="pagination" id="entries-pagination" aria-label="All Entries pagination" data-i18n-aria-label="All Entries pagination">
+            <p class="pagination__range" id="pagination-range" aria-live="polite" data-i18n="Showing 0 of 0 entries">Showing 0 of 0 entries</p>
             <div class="pagination__controls">
-              <button type="button" data-page-action="first" aria-label="First page" aria-controls="all-entries-list">First</button>
-              <button type="button" data-page-action="previous" aria-label="Previous page" aria-controls="all-entries-list">Previous</button>
-              <p class="pagination__page" id="pagination-page" aria-live="polite" aria-atomic="true">Page 1 of 1</p>
-              <button type="button" data-page-action="next" aria-label="Next page" aria-controls="all-entries-list">Next</button>
-              <button type="button" data-page-action="last" aria-label="Last page" aria-controls="all-entries-list">Last</button>
+              <button type="button" data-page-action="first" aria-label="First page" data-i18n-aria-label="First page" aria-controls="all-entries-list" data-i18n="First">First</button>
+              <button type="button" data-page-action="previous" aria-label="Previous page" data-i18n-aria-label="Previous page" aria-controls="all-entries-list" data-i18n="Previous">Previous</button>
+              <p class="pagination__page" id="pagination-page" aria-live="polite" aria-atomic="true" data-i18n="Page 1 of 1">Page 1 of 1</p>
+              <button type="button" data-page-action="next" aria-label="Next page" data-i18n-aria-label="Next page" aria-controls="all-entries-list" data-i18n="Next">Next</button>
+              <button type="button" data-page-action="last" aria-label="Last page" data-i18n-aria-label="Last page" aria-controls="all-entries-list" data-i18n="Last">Last</button>
             </div>
           </nav>
         </section>
         <section class="settings-view app-view" id="settings-view" aria-labelledby="settings-heading" hidden>
           <header class="view-heading">
-            <h1 id="settings-heading" tabindex="-1">Settings</h1>
-            <p>Customize your journaling experience.</p>
+            <h1 id="settings-heading" tabindex="-1" data-i18n="Settings">Settings</h1>
+            <p data-i18n="Customize your journaling experience.">Customize your journaling experience.</p>
           </header>
           <p class="form-feedback" id="preferences-feedback" role="alert"></p>
-          <button class="secondary-button" type="button" id="retry-preferences" hidden>Retry saving preferences</button>
+          <button class="secondary-button" type="button" id="retry-preferences" hidden data-i18n="Retry saving preferences">Retry saving preferences</button>
           <div class="settings-cards">
+            <section class="settings-card" aria-labelledby="language-heading">
+              <div class="settings-card__description">
+                <div><h2 id="language-heading" data-i18n="Language">Language</h2><p id="language-description" data-i18n="Choose your interface language. Your writing stays as you wrote it.">Choose your interface language. Your writing stays as you wrote it.</p></div>
+              </div>
+              <label class="sr-only" for="language" data-i18n="Language">Language</label>
+              <select id="language" aria-describedby="language-description language-feedback">
+                <option value="auto" data-i18n="Automatic (browser language)">Automatic (browser language)</option>
+                <option value="en" lang="en">English</option>
+                <option value="es" lang="es">Español</option>
+                <option value="fr" lang="fr">Français</option>
+                <option value="pt-BR" lang="pt-BR">Português (Brasil)</option>
+                <option value="de" lang="de">Deutsch</option>
+              </select>
+              <p id="language-feedback" class="form-feedback" role="alert"></p>
+              <button id="retry-language" class="secondary-button" type="button" hidden data-i18n="Retry saving language">Retry saving language</button>
+            </section>
             <section class="settings-card" aria-labelledby="appearance-heading">
               <div class="settings-card__description">
                 <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></svg>
-                <div><h2 id="appearance-heading">Appearance</h2><p id="appearance-description">Choose Light or Dark, or let System follow your device's appearance.</p></div>
+                <div><h2 id="appearance-heading" data-i18n="Appearance">Appearance</h2><p id="appearance-description" data-i18n="Choose Light or Dark, or let System follow your device's appearance.">Choose Light or Dark, or let System follow your device's appearance.</p></div>
               </div>
               <fieldset class="segmented segmented--appearance" aria-describedby="appearance-description">
-                <legend class="sr-only">Appearance</legend>
-                <label><input type="radio" name="appearance" value="light" data-preference="appearance"/><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></svg>Light</span></label>
-                <label><input type="radio" name="appearance" value="dark" data-preference="appearance"/><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15A9 9 0 0 1 9 3a9 9 0 1 0 11 12Z"/></svg>Dark</span></label>
-                <label><input type="radio" name="appearance" value="system" data-preference="appearance"/><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M12 17v4m-5 0h10"/></svg>System</span></label>
+                <legend class="sr-only" data-i18n="Appearance">Appearance</legend>
+                <label><input type="radio" name="appearance" value="light" data-preference="appearance"/><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></svg><span data-i18n="Light">Light</span></span></label>
+                <label><input type="radio" name="appearance" value="dark" data-preference="appearance"/><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15A9 9 0 0 1 9 3a9 9 0 1 0 11 12Z"/></svg><span data-i18n="Dark">Dark</span></span></label>
+                <label><input type="radio" name="appearance" value="system" data-preference="appearance"/><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M12 17v4m-5 0h10"/></svg><span data-i18n="System">System</span></span></label>
               </fieldset>
             </section>
             <section class="settings-card" aria-labelledby="text-size-heading">
               <div class="settings-card__description">
                 <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6V3h14v3M9 3v18m-4 0h8m1-10V9h8v2m-4-2v12m-3 0h6"/></svg>
-                <div><h2 id="text-size-heading">Text size</h2><p id="text-size-description">Choose a comfortable size for writing and reading entries.</p></div>
+                <div><h2 id="text-size-heading" data-i18n="Text size">Text size</h2><p id="text-size-description" data-i18n="Choose a comfortable size for writing and reading entries.">Choose a comfortable size for writing and reading entries.</p></div>
               </div>
               <fieldset class="segmented" aria-describedby="text-size-description">
-                <legend class="sr-only">Writing text size</legend>
-                <label><input type="radio" name="text-size" value="small" data-preference="textSize"/><span>Small</span></label>
-                <label><input type="radio" name="text-size" value="medium" data-preference="textSize"/><span>Medium</span></label>
-                <label><input type="radio" name="text-size" value="large" data-preference="textSize"/><span>Large</span></label>
+                <legend class="sr-only" data-i18n="Writing text size">Writing text size</legend>
+                <label><input type="radio" name="text-size" value="small" data-preference="textSize"/><span data-i18n="Small">Small</span></label>
+                <label><input type="radio" name="text-size" value="medium" data-preference="textSize"/><span data-i18n="Medium">Medium</span></label>
+                <label><input type="radio" name="text-size" value="large" data-preference="textSize"/><span data-i18n="Large">Large</span></label>
               </fieldset>
             </section>
             <section class="settings-card settings-card--privacy" aria-labelledby="privacy-heading">
               <div class="settings-card__description">
                 <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="12" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3m-5 5v3"/></svg>
-                <div><h2 id="privacy-heading">Privacy &amp; storage</h2><p>Your journal entries are stored only in this browser on this device. They are not sent to an application server, account, or cloud service.</p></div>
+                <div><h2 id="privacy-heading" data-i18n="Privacy &amp; storage">Privacy &amp; storage</h2><p data-i18n="Your journal entries are stored only in this browser on this device. They are not sent to an application server, account, or cloud service.">Your journal entries are stored only in this browser on this device. They are not sent to an application server, account, or cloud service.</p></div>
               </div>
-              <p class="storage-callout"><span aria-hidden="true">ⓘ</span><span>Clearing browser or site data may permanently remove your entries. They won’t appear in another browser or on another device. Browser storage is not a cloud backup. Unfinished drafts are also kept in this browser until saved or discarded.</span></p>
+              <p class="storage-callout"><span aria-hidden="true">ⓘ</span><span data-i18n="Clearing browser or site data may permanently remove your entries. They won’t appear in another browser or on another device. Browser storage is not a cloud backup. Unfinished drafts are also kept in this browser until saved or discarded.">Clearing browser or site data may permanently remove your entries. They won’t appear in another browser or on another device. Browser storage is not a cloud backup. Unfinished drafts are also kept in this browser until saved or discarded.</span></p>
             </section>
             <section class="settings-card settings-card--backup" aria-labelledby="backup-heading">
               <div class="settings-card__description">
                 <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5Z M14 3v5h5M8 13h8m-8 4h8"/></svg>
-                <div><h2 id="backup-heading">A copy of your journal</h2><p id="backup-description">Save a JSON file of all saved entries, or import a previous copy by merging or replacing entries. Drafts and appearance settings are not included. Your file stays on your device and is not uploaded.</p></div>
+                <div><h2 id="backup-heading" data-i18n="A copy of your journal">A copy of your journal</h2><p id="backup-description" data-i18n="Save a JSON file of all saved entries, or import a previous copy by merging or replacing entries. Drafts and appearance settings are not included. Your file stays on your device and is not uploaded.">Save a JSON file of all saved entries, or import a previous copy by merging or replacing entries. Drafts and appearance settings are not included. Your file stays on your device and is not uploaded.</p></div>
               </div>
               <div class="backup-actions">
-                <button type="button" class="secondary-button" id="export-journal" aria-describedby="backup-description">Save a copy</button>
-                <button type="button" class="secondary-button" id="import-journal" aria-describedby="backup-description">Restore from a file</button>
-                <input type="file" id="backup-file" accept=".json,application/json" aria-label="Choose a Mini Journal JSON backup" hidden />
+                <button type="button" class="secondary-button" id="export-journal" aria-describedby="backup-description" data-i18n="Save a copy">Save a copy</button>
+                <button type="button" class="secondary-button" id="import-journal" aria-describedby="backup-description" data-i18n="Restore from a file">Restore from a file</button>
+                <input type="file" id="backup-file" accept=".json,application/json" aria-label="Choose a Mini Journal JSON backup" data-i18n-aria-label="Choose a Mini Journal JSON backup" hidden />
               </div>
               <p id="backup-feedback" role="status" aria-live="polite"></p>
             </section>
             <section class="settings-card" aria-labelledby="data-heading">
               <div class="settings-card__description">
                 <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="4"/><path d="M3 5v14c0 5 18 5 18 0V5M3 12c0 5 18 5 18 0"/></svg>
-                <div><h2 id="data-heading">Data</h2><p>This will permanently delete all your saved journal entries. This action cannot be undone.</p><p id="delete-all-hint">There are no saved entries to delete.</p></div>
+                <div><h2 id="data-heading" data-i18n="Data">Data</h2><p data-i18n="This will permanently delete all your saved journal entries. This action cannot be undone.">This will permanently delete all your saved journal entries. This action cannot be undone.</p><p id="delete-all-hint" data-i18n="There are no saved entries to delete.">There are no saved entries to delete.</p></div>
               </div>
               <button type="button" class="delete-all-button" id="delete-all" aria-describedby="delete-all-hint" disabled>
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   <path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6" />
                 </svg>
-                <span>Delete all journal entries</span>
+                <span data-i18n="Delete all journal entries">Delete all journal entries</span>
               </button>
             </section>
           </div>
@@ -249,56 +259,56 @@
 
     <dialog class="confirmation-dialog" id="delete-dialog" aria-labelledby="delete-dialog-title" aria-describedby="delete-dialog-description">
       <div class="confirmation-dialog__content">
-        <p class="confirmation-dialog__eyebrow">Delete entry</p>
-        <h2 id="delete-dialog-title">Remove this journal entry?</h2>
-        <p id="delete-dialog-description">This entry will be removed from your journal. This action cannot be undone.</p>
+        <p class="confirmation-dialog__eyebrow" data-i18n="Delete entry">Delete entry</p>
+        <h2 id="delete-dialog-title" data-i18n="Remove this journal entry?">Remove this journal entry?</h2>
+        <p id="delete-dialog-description" data-i18n="This entry will be removed from your journal. This action cannot be undone.">This entry will be removed from your journal. This action cannot be undone.</p>
         <div class="confirmation-dialog__actions">
-          <button class="secondary-button" id="cancel-delete" type="button">Cancel</button>
-          <button class="danger-button" id="confirm-delete" type="button">Delete entry</button>
+          <button class="secondary-button" id="cancel-delete" type="button" data-i18n="Cancel">Cancel</button>
+          <button class="danger-button" id="confirm-delete" type="button" data-i18n="Delete entry">Delete entry</button>
         </div>
       </div>
     </dialog>
 
     <dialog class="confirmation-dialog" id="export-dialog" aria-labelledby="export-dialog-title" aria-describedby="export-dialog-description">
       <div class="confirmation-dialog__content">
-        <p class="confirmation-dialog__eyebrow">Save a copy</p>
-        <h2 id="export-dialog-title">Unfinished writing is not included</h2>
-        <p id="export-dialog-description">This backup includes saved journal entries only. Unfinished drafts and unsaved edits are not included. You can review them first, download saved entries only, or cancel. Your unfinished writing will be kept.</p>
+        <p class="confirmation-dialog__eyebrow" data-i18n="Save a copy">Save a copy</p>
+        <h2 id="export-dialog-title" data-i18n="Unfinished writing is not included">Unfinished writing is not included</h2>
+        <p id="export-dialog-description" data-i18n="This backup includes saved journal entries only. Unfinished drafts and unsaved edits are not included. You can review them first, download saved entries only, or cancel. Your unfinished writing will be kept.">This backup includes saved journal entries only. Unfinished drafts and unsaved edits are not included. You can review them first, download saved entries only, or cancel. Your unfinished writing will be kept.</p>
         <div class="confirmation-dialog__actions export-dialog__actions">
-          <button class="secondary-button" id="cancel-export" type="button">Cancel</button>
-          <button class="secondary-button" id="review-export-writing" type="button">Review unfinished writing</button>
-          <button class="save-button save-button--compact" id="confirm-export" type="button">Download saved entries only</button>
+          <button class="secondary-button" id="cancel-export" type="button" data-i18n="Cancel">Cancel</button>
+          <button class="secondary-button" id="review-export-writing" type="button" data-i18n="Review unfinished writing">Review unfinished writing</button>
+          <button class="save-button save-button--compact" id="confirm-export" type="button" data-i18n="Download saved entries only">Download saved entries only</button>
         </div>
       </div>
     </dialog>
 
     <dialog class="confirmation-dialog" id="restore-writing-dialog" aria-labelledby="restore-writing-title" aria-describedby="restore-writing-description">
       <div class="confirmation-dialog__content">
-        <h2 id="restore-writing-title">You have unfinished writing</h2>
+        <h2 id="restore-writing-title" data-i18n="You have unfinished writing">You have unfinished writing</h2>
         <div id="restore-writing-description">
-          <p>Before importing a journal backup, please save or discard your unfinished drafts and edits.</p>
-          <p>This helps protect your writing while restoring entries.</p>
+          <p data-i18n="Before importing a journal backup, please save or discard your unfinished drafts and edits.">Before importing a journal backup, please save or discard your unfinished drafts and edits.</p>
+          <p data-i18n="This helps protect your writing while restoring entries.">This helps protect your writing while restoring entries.</p>
         </div>
         <div class="confirmation-dialog__actions">
-          <button class="secondary-button" id="cancel-restore-writing" type="button">Cancel</button>
-          <button class="save-button save-button--compact" id="review-restore-writing" type="button">Review unfinished writing</button>
+          <button class="secondary-button" id="cancel-restore-writing" type="button" data-i18n="Cancel">Cancel</button>
+          <button class="save-button save-button--compact" id="review-restore-writing" type="button" data-i18n="Review unfinished writing">Review unfinished writing</button>
         </div>
       </div>
     </dialog>
 
     <dialog class="confirmation-dialog" id="restore-dialog" aria-labelledby="restore-dialog-title" aria-describedby="restore-dialog-description">
       <div class="confirmation-dialog__content">
-        <p class="confirmation-dialog__eyebrow">Restore from a file</p>
-        <h2 id="restore-dialog-title">Import your saved journal</h2>
+        <p class="confirmation-dialog__eyebrow" data-i18n="Restore from a file">Restore from a file</p>
+        <h2 id="restore-dialog-title" data-i18n="Import your saved journal">Import your saved journal</h2>
         <fieldset class="import-modes" id="import-modes">
-          <legend>How would you like to import?</legend>
-          <label><input type="radio" name="import-mode" value="merge" checked /> Merge entries</label>
-          <label><input type="radio" name="import-mode" value="replace" /> Replace journal</label>
+          <legend data-i18n="How would you like to import?">How would you like to import?</legend>
+          <label><input type="radio" name="import-mode" value="merge" checked /><span data-i18n="Merge entries">Merge entries</span></label>
+          <label><input type="radio" name="import-mode" value="replace" /><span data-i18n="Replace journal">Replace journal</span></label>
         </fieldset>
         <p id="restore-dialog-description" role="status" aria-live="polite"></p>
         <div class="confirmation-dialog__actions">
-          <button class="secondary-button" id="cancel-restore" type="button">Cancel</button>
-          <button class="danger-button" id="confirm-restore" type="button">Replace journal</button>
+          <button class="secondary-button" id="cancel-restore" type="button" data-i18n="Cancel">Cancel</button>
+          <button class="danger-button" id="confirm-restore" type="button" data-i18n="Replace journal">Replace journal</button>
         </div>
       </div>
     </dialog>
