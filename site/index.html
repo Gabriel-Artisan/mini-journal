@@ -8,8 +8,8 @@
       content="Mini Journal is a calm, private place for short daily reflections."
     />
     <title>Mini Journal</title>
-    <script type="module" crossorigin src="/mini-journal/assets/index-BewHhtj_.js"></script>
-    <link rel="stylesheet" crossorigin href="/mini-journal/assets/index-yI-O2QCG.css">
+    <script type="module" crossorigin src="/mini-journal/assets/index-D8afABhi.js"></script>
+    <link rel="stylesheet" crossorigin href="/mini-journal/assets/index-CJ-TrQXy.css">
   </head>
   <body>
     <div class="page-shell">
@@ -51,7 +51,7 @@
               <span class="brand__tagline" data-i18n="Your words, your space.">Your words, your space.</span>
             </span>
           </a>
-          <p class="brand__release"><span class="brand__early-access" data-i18n="Early access">Early access</span> <span aria-hidden="true">·</span> <span data-i18n-version="1.3.0">Version 1.3.0</span></p>
+          <p class="brand__release"><span class="brand__early-access" data-i18n="Early access">Early access</span> <span aria-hidden="true">·</span> <span data-i18n-version="1.4.0">Version 1.4.0</span></p>
         </div>
 
         <button
@@ -93,16 +93,10 @@
               <label class="field-label title-label" for="entry-title" data-i18n="Title (optional)">Title (optional)</label>
               <input class="entry-title-input" id="entry-title" type="text" maxlength="120" aria-describedby="composer-feedback" />
 
-              <label class="composer-card__prompt" for="journal-entry" data-i18n="How was your day? What’s on your mind?">How was your day? What’s on your mind?</label>
+              <label class="field-label writing-label" id="composer-prompt" for="journal-entry" data-i18n="Your entry">Your entry</label>
 
               <div class="textarea-wrap">
-                <textarea
-                  id="journal-entry"
-                  name="journal-entry"
-                  maxlength="1000"
-                  placeholder="Write here..." data-i18n-placeholder="Write here..."
-                  aria-describedby="character-count composer-feedback"
-                ></textarea>
+                <div id="journal-entry" aria-labelledby="composer-prompt" aria-describedby="character-count composer-feedback"></div>
                 <output id="character-count" for="journal-entry" aria-live="polite">0 / 1,000</output>
               </div>
 
