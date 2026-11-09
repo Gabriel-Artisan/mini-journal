@@ -1,7 +1,7 @@
 // Build-time placeholders are filled by scripts/offline-plugin.js.
 const CACHE_PREFIX = "mini-journal-shell:/mini-journal/:";
-const CACHE_NAME = CACHE_PREFIX + "71562aea1e340a4fb0a5";
-const ASSETS = ["/mini-journal/assets/index-BPcsWr7F.js","/mini-journal/assets/index-Dxl8KowD.css","/mini-journal/index.html"];
+const CACHE_NAME = CACHE_PREFIX + "5aa3d2141af8f7b8a61f";
+const ASSETS = ["/mini-journal/assets/index-50pfndQQ.js","/mini-journal/assets/index-Dxl8KowD.css","/mini-journal/index.html"];
 const BASE = "/mini-journal/";
 const SHELL = `${BASE}index.html`;
 
