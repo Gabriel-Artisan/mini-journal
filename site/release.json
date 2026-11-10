@@ -1,10 +1,10 @@
 {
-  "version": "1.4.4",
-  "sourceCommit": "0515ce2f450de423b32c044e4a98df950728d748",
+  "version": "1.4.5",
+  "sourceCommit": "5e5950ebf954b99cc9d3e1eeeb1fd3d0ad5a43a0",
   "files": {
-    "assets/index-50pfndQQ.js": "ad104ab5cada1d063096c5d4729887c8d0d52f339dde3325f2a301f9d663ce19",
-    "assets/index-Dxl8KowD.css": "feb25e8ab2f3c03438cc176e1168601d68fac8db3f070db10714ce0362411082",
-    "index.html": "31bf36d4fc948f9492540f1bf52c13346f09d172fc8706e93716a147c8afe96a",
-    "sw.js": "2d32f5868b7a4cf4fdcbd740a234940d89f5654fd98913a138504c1ed862df4d"
+    "assets/index-BGxqAj0W.css": "2b4c066d0adc22415a0232b400c28d89a97de63e1de012d94420a3eed8f93939",
+    "assets/index-Khog4PSI.js": "2a8c44e0bb350eefb012650aece45999cba19c6f7cba6dee605d1a04e9b88dd7",
+    "index.html": "be78dc2390cc70f6513300c51ed2108f17df34b265d0aa1cf7f36b22b881b458",
+    "sw.js": "b789c488159ba6982083656937506affdff7b7db22d4b8ad48a654959f14ba75"
   }
 }
