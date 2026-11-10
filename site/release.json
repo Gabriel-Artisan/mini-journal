@@ -1,10 +1,10 @@
 {
-  "version": "1.4.3",
-  "sourceCommit": "e76b15881e9876e792cfde3c25ca84b19f789048",
+  "version": "1.4.4",
+  "sourceCommit": "0515ce2f450de423b32c044e4a98df950728d748",
   "files": {
     "assets/index-50pfndQQ.js": "ad104ab5cada1d063096c5d4729887c8d0d52f339dde3325f2a301f9d663ce19",
     "assets/index-Dxl8KowD.css": "feb25e8ab2f3c03438cc176e1168601d68fac8db3f070db10714ce0362411082",
-    "index.html": "1b9764c7dee9548c8c9a2b137de9cee20a23c721021ffb623892bb5e4068e43b",
-    "sw.js": "34758e66a39d41d364bc0b1c0f8e5fa49a3a49ba272787c55df6b1241e4b46b8"
+    "index.html": "31bf36d4fc948f9492540f1bf52c13346f09d172fc8706e93716a147c8afe96a",
+    "sw.js": "2d32f5868b7a4cf4fdcbd740a234940d89f5654fd98913a138504c1ed862df4d"
   }
 }
